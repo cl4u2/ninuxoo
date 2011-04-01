@@ -11,14 +11,14 @@ class Resource():
 		tags = [] 
 		filetype = ""
 		def __init__(self, uri="", comments="", filetype=Filetype.UNKNOWN):
-				self.uri = uri
+				self.uri = uri.strip()
 				self.comments = comments
 				self.filetype = filetype
 				self.tags = list()
 		def addTags(self, newtags):
 				if newtags.__class__ == list:
 						for tag in newtags:
-								self.addTags(tag)
+								self.addTags(tag.strip())
 				else:
 						self.tags.append(newtags.upper())
 		def makeTags(self):
@@ -36,7 +36,7 @@ class Resource():
 						urisrest = self.uri
 
 				# split the uris into tags
-				separators = "./\\_' ,-!\"#$%^&*()[];{}"
+				separators = "./\\_' ,-!\"#$%^&*()[];:{}"
 				tmptags = [urisrest]
 				for s in list(separators):
 						tmptagsnew = list()
