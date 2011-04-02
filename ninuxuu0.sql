@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `resources` (
 CREATE TABLE IF NOT EXISTS `tags` (
   `uri` varchar(700) NOT NULL,
   `tag` varchar(50) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 --  `resource_id` bigint(20) NOT NULL,
   PRIMARY KEY (`uri`,`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii;

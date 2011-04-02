@@ -8,22 +8,21 @@ class Filetype():
 class Resource():
 		uri = ""
 		comments =""
-		tags = [] 
+		tags = set() 
 		filetype = ""
 		def __init__(self, uri="", comments="", filetype=Filetype.UNKNOWN):
 				self.uri = uri.strip()
 				self.comments = comments
 				self.filetype = filetype
-				self.tags = list()
+				self.tags = set()
 		def addTags(self, newtags):
 				if newtags.__class__ == list:
 						for tag in newtags:
 								self.addTags(tag.strip())
 				else:
-						self.tags.append(newtags.upper())
+						self.tags.add(newtags.upper())
 		def makeTags(self):
 				"populate the tags attribute from the uri and comments attributes"
-
 				# add the server's ip address
 				m = re.search("(.*)://([^/]*)(.*)", self.uri)
 				if m and len(m.group(1)) > 0: # uri type
@@ -37,7 +36,7 @@ class Resource():
 
 				# split the uris into tags
 				separators = "./\\_' ,-!\"#$%^&*()[];:{}"
-				tmptags = [urisrest]
+				tmptags = [urisrest, self.comments]
 				for s in list(separators):
 						tmptagsnew = list()
 						for e in tmptags:
@@ -46,12 +45,12 @@ class Resource():
 
 				# delete duplicates and the empty string
 				tmptags = list(set(tmptags))
-				tmptags = [e for e in tmptags if len(e) > 0]
-				# TODO: purge short words 
-
+				stopwords = ['the', 'il', 'un', 'una', 'gli', 'le', 'lo'] 
+				tmptags = [e for e in tmptags if len(e) > 1 and not e in stopwords]
 				self.addTags(tmptags)
+
 		def __repr__(self):
-				return self.uri + " {" + self.comments + "} " + str(self.tags)
+				return self.uri + " {" + self.comments + "} " + str(list(self.tags))
 		def __str__(self):
 				return repr(self)
 
