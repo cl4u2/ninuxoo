@@ -35,7 +35,7 @@ print outputhead
 print """
 <form method='GET' action='/cgi-bin/ninuxoo.cgi'>
 <strong>Ricerca:</strong> <input type='text' name='q' value='%s' />
-<input type='submit' value='cerca' />
+<input type='submit' value='go!' />
 </form>
 """ %req
 
