@@ -70,7 +70,8 @@ class QueryMaker(MysqlConnectionManager):
 				cursor = self.conn.cursor()
 				if len(query.tags) >= 2:
 						res += self.__andquery(cursor, list(query.tags))
-				res += self.__orquery(cursor, list(query.tags))
+				if len(res) < 50:
+						res += self.__orquery(cursor, list(query.tags))
 				cursor.close()
 				return res
 		def __orquery(self, cursor, tags):
