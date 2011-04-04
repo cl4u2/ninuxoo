@@ -7,7 +7,7 @@ import socket
 from resources import Filetype, Resource
 from dbmanager import *
 
-SOCKTIMEOUT = 5
+SOCKTIMEOUT = 20
 socket.setdefaulttimeout(SOCKTIMEOUT)
 
 class SambaDancer(threading.Thread):
@@ -34,7 +34,7 @@ class SambaDancer(threading.Thread):
 										r.server = self.target
 										r.comment = e.comment
 										res.append(r)
-										res = res + self.dance(smburl + "/" + e.name, depth+1)
+										res += self.dance(smburl + "/" + e.name, depth+1)
 								except:
 										pass
 						elif e.smbc_type == 8:
@@ -60,10 +60,12 @@ class SambaDancer(threading.Thread):
 						for res in results:
 								self.rs.store(res)
 				except:
+						raise
 						print "%s error" % self.target
 
 
 if __name__ == "__main__":
-		s = SambaDancer("192.168.69.8")
+		#s = SambaDancer("192.168.69.8")
+		s = SambaDancer("10.176.0.176")
 		s.run()
 

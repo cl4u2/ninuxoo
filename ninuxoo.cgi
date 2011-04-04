@@ -39,7 +39,7 @@ print """
 </form>
 """ %req
 
-if len(req)<=0:
+if len(req) <= 0:
 		print outputtail
 		sys.exit(0)
 
@@ -47,6 +47,10 @@ if len(req)<=0:
 qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 q = Query(req)
 resp = qm.query(q)
+
+if len(resp) <= 0:
+		print "nessun risultato trovato per \"%s\"" % req
+
 print "<ul>"
 for resource in resp:
 		print "<li><a href='%s'>%s</a></li>" % (resource.uri, resource.uri)

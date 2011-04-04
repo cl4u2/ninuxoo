@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import MySQLdb
+import urllib
 from resources import *
 
 class MysqlConnectionManager():
@@ -45,7 +46,7 @@ class ResourceStorer(MysqlConnectionManager):
 						filetype
 				) VALUES (
 				'%s', '%s', '%s')""" % (
-						resource.uri,
+						urllib.quote(resource.uri),
 						resource.server,
 						resource.filetype
 				)
@@ -57,7 +58,7 @@ class ResourceStorer(MysqlConnectionManager):
 						tag
 				) VALUES (
 				'%s', '%s')""" % (
-						uri,
+						urllib.quote(uri),
 						tag
 				)
 				cursor.execute(insertionstring)
