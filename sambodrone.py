@@ -7,15 +7,15 @@ import socket
 from resources import Filetype, Resource
 from dbmanager import *
 
-SOCKTIMEOUT = 10
+SOCKTIMEOUT = 5
 socket.setdefaulttimeout(SOCKTIMEOUT)
 
 class SambaDancer(threading.Thread):
-		def __init__(self, uri, target):
+		def __init__(self, target):
 				threading.Thread.__init__(self)
 				self.ctx = smbc.Context()
 				self.rs = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu')
-				self.uri = uri
+				self.uri = "smb://" + target
 				self.target = target
 		def dance(self, smburl, depth=0):
 				res = []
@@ -31,6 +31,7 @@ class SambaDancer(threading.Thread):
 								try:
 										r = Resource()
 										r.uri = smburl
+										r.server = self.target
 										r.comment = e.comment
 										res.append(r)
 										res = res + self.dance(smburl + "/" + e.name, depth+1)
@@ -39,12 +40,13 @@ class SambaDancer(threading.Thread):
 						elif e.smbc_type == 8:
 								r = Resource()
 								r.uri = smburl + "/" + e.name
+								r.server = self.target
 								res.append(r)
 						else:
 								pass
 				return res
 		def run(self):
-				time.sleep(2)
+				time.sleep(1)
 				try:
 						s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 						cr = s.connect_ex((self.target, 139)) 
@@ -58,14 +60,10 @@ class SambaDancer(threading.Thread):
 						for res in results:
 								self.rs.store(res)
 				except:
-						print "error"
+						print "%s error" % self.target
 
 
 if __name__ == "__main__":
-		s = SambaDancer("smb://192.168.69.8", "192.168.69.8")
-		#fl = s.dance("smb://192.168.69.8")
-		#for r in fl:
-		#		r.makeTags()
-		#		print r
+		s = SambaDancer("192.168.69.8")
 		s.run()
 

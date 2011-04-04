@@ -8,11 +8,13 @@ class Filetype():
 class Resource():
 		uri = ""
 		comments =""
+		server = ""
 		tags = set() 
 		filetype = ""
-		def __init__(self, uri="", comments="", filetype=Filetype.UNKNOWN):
+		def __init__(self, uri="", comments="", server="", filetype=Filetype.UNKNOWN):
 				self.uri = uri.strip()
 				self.comments = comments
+				self.server = server
 				self.filetype = filetype
 				self.tags = set()
 		def addTags(self, newtags):
@@ -53,4 +55,9 @@ class Resource():
 				return self.uri + " {" + self.comments + "} " + str(list(self.tags))
 		def __str__(self):
 				return repr(self)
+
+class Query(Resource):
+		def __init__(self, query):
+				Resource.__init__(self)
+				self.uri = query
 

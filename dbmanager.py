@@ -41,10 +41,12 @@ class ResourceStorer(MysqlConnectionManager):
 				insertionstring = """
 				REPLACE INTO resources (
 						uri, 
+						server,
 						filetype
 				) VALUES (
-				'%s', '%s')""" % (
+				'%s', '%s', '%s')""" % (
 						resource.uri,
+						resource.server,
 						resource.filetype
 				)
 				cursor.execute(insertionstring)
@@ -60,10 +62,52 @@ class ResourceStorer(MysqlConnectionManager):
 				)
 				cursor.execute(insertionstring)
 
+class QueryMaker(MysqlConnectionManager):
+		def query(self, query):
+				query.makeTags()
+				#print query
+				res = list()
+				cursor = self.conn.cursor()
+				res += self.__andquery(cursor, list(query.tags))
+				res += self.__orquery(cursor, list(query.tags))
+				cursor.close()
+				return res
+		def __orquery(self, cursor, tags):
+				if len(tags) <=0:
+						return []
+				selectionstring = """
+				SELECT resources.uri, resources.server, resources.filetype 
+				FROM resources JOIN tags ON resources.uri = tags.uri
+				WHERE tags.tag = '%s' """ % tags[0]
+				for tag in tags[1:]:
+						selectionstring += "OR tags.tag = '%s'" % tag
+				cursor.execute(selectionstring)
+				r = [Resource(uri=e[0], server=e[1], filetype=[2]) for e in cursor.fetchall()]
+				return r
+		def __andquery(self, cursor, tags):
+				if len(tags) <=0:
+						return []
+				selectionstring = """
+				SELECT resources.uri, resources.server, resources.filetype 
+				FROM resources JOIN tags AS t0 ON resources.uri = t0.uri """ 
+				for i in range(1,len(tags)):
+						selectionstring += "JOIN tags as t%d ON t%d.uri = t%d.uri " % (i, i-1, i)
+				selectionstring += "WHERE t0.tag = '%s' " % tags[0]
+				for i in range(1,len(tags)):
+						selectionstring += "AND t%d.tag = '%s' " % (i, tags[i])
+				cursor.execute(selectionstring)
+				r = [Resource(uri=e[0], server=e[1], filetype=[2]) for e in cursor.fetchall()]
+				return r
+
+
 if __name__ == "__main__":
 		rs = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu')
 		r = Resource(uri="test://just/a.test/right_now", comments="films", filetype=Filetype.VIDEO)
-		rs.store(r)
+		#rs.store(r)
+		qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
+		q = Query("ninux etnica")
+		r = qm.query(q)
+		print r
 
 
 

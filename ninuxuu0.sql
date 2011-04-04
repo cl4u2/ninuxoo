@@ -7,6 +7,7 @@ USE ninuxuu;
 CREATE TABLE IF NOT EXISTS `resources` (
 --  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uri` varchar(700) NOT NULL,
+  `server` varchar(50) NOT NULL,
   `filetype` varchar(20),
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uri`)
