@@ -22,8 +22,15 @@ except:
 outputhead = """
 <html>
 <head><title>ninuXoo!</title></head>
+<link rel="stylesheet" href="/ninuxoo/ninuxoo.css" type="text/css" />
 <body>
-<h1>ninuXoo!</h1>
+<div class="logo">
+<a href="/cgi-bin/ninuxoo.cgi">
+<img src="/ninuxoo/ninuxoo.png" border="0" alt="ninuXoo!"/>
+</a>
+</div>
+<br />
+<br />
 """
 outputtail = """
 </body>
@@ -33,10 +40,12 @@ outputtail = """
 print outputhead
 
 print """
+<div class ="searchform">
 <form method='GET' action='/cgi-bin/ninuxoo.cgi'>
-<strong>Ricerca:</strong> <input type='text' name='q' value='%s' />
+<strong>Ricerca:</strong> <input type='text' name='q' value='%s' size="42"/>
 <input type='submit' value='go!' />
 </form>
+</div>
 """ %req
 
 if len(req) <= 0:
@@ -51,8 +60,8 @@ resp = qm.query(q)
 if len(resp) <= 0:
 		print "nessun risultato trovato per \"%s\"" % req
 
-print "<ul>"
+print "<ul class='results'>"
 for resource in resp:
-		print "<li><a href='%s'>%s</a></li>" % (resource.uri, resource.uri)
+		print '<li class="result"><a href="%s">%s</a></li>' % (resource.uri, resource.uri)
 print "</ul>"
 

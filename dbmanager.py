@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import MySQLdb
-import urllib
 from resources import *
 
 class MysqlConnectionManager():
@@ -46,7 +45,7 @@ class ResourceStorer(MysqlConnectionManager):
 						filetype
 				) VALUES (
 				'%s', '%s', '%s')""" % (
-						urllib.quote(resource.uri),
+						resource.uri.strip().replace("'","\\'"),
 						resource.server,
 						resource.filetype
 				)
@@ -58,7 +57,7 @@ class ResourceStorer(MysqlConnectionManager):
 						tag
 				) VALUES (
 				'%s', '%s')""" % (
-						urllib.quote(uri),
+						uri.strip().replace("'","\\'"),
 						tag
 				)
 				cursor.execute(insertionstring)
@@ -69,7 +68,8 @@ class QueryMaker(MysqlConnectionManager):
 				#print query
 				res = list()
 				cursor = self.conn.cursor()
-				res += self.__andquery(cursor, list(query.tags))
+				if len(query.tags) >= 2:
+						res += self.__andquery(cursor, list(query.tags))
 				res += self.__orquery(cursor, list(query.tags))
 				cursor.close()
 				return res
@@ -79,7 +79,7 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT resources.uri, resources.server, resources.filetype 
 				FROM resources JOIN tags ON resources.uri = tags.uri
-				WHERE tags.tag = '%s' """ % tags[0]
+				WHERE tags.tag = '%s'""" % tags[0]
 				for tag in tags[1:]:
 						selectionstring += "OR tags.tag = '%s'" % tag
 				cursor.execute(selectionstring)

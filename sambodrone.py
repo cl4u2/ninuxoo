@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# vim: fileencoding=utf-8:nomodified
 
 import smbc
 import threading
@@ -18,12 +19,21 @@ class SambaDancer(threading.Thread):
 				self.uri = "smb://" + target
 				self.target = target
 		def dance(self, smburl, depth=0):
+				print smburl
 				res = []
-				if depth>10: #maximum recursion depth
+				if depth > 10: #maximum recursion depth
 						return res
-				entries = self.ctx.opendir(smburl).getdents()
+
+				try:
+						entries = self.ctx.opendir(smburl).getdents()
+				except:
+						return res
+
 				for e in entries:
-						if e.smbc_type < 0 or e.name[0] == '.':
+						try:
+								if e.smbc_type < 0 or e.name.startswith('.'):
+										continue
+						except:
 								continue
 
 						#3L: file share 7L: directory
@@ -37,13 +47,16 @@ class SambaDancer(threading.Thread):
 										res += self.dance(smburl + "/" + e.name, depth+1)
 								except:
 										pass
+										#raise
 						elif e.smbc_type == 8:
-								r = Resource()
-								r.uri = smburl + "/" + e.name
-								r.server = self.target
-								res.append(r)
-						else:
-								pass
+								try:
+										r = Resource()
+										r.uri = smburl + "/" + e.name
+										r.server = self.target
+										res.append(r)
+								except:
+										pass
+										#raise
 				return res
 		def run(self):
 				time.sleep(1)
