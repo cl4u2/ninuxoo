@@ -37,7 +37,7 @@ class Resource():
 						urisrest = self.uri
 
 				# split the uris into tags
-				separators = "./\\_' ,-!\"#$%^&*()[];:{}."
+				separators = "./\\_' ,-!\"#$%^&*()[];:{}"
 				tmptags = [urisrest, self.comments, self.server]
 				for s in list(separators):
 						tmptagsnew = list()
@@ -48,7 +48,7 @@ class Resource():
 				# delete duplicates and the empty string
 				tmptags = list(set(tmptags))
 				stopwords = ['THE', 'IL', 'UN', 'UNA', 'GLI', 'LE', 'LO', 'A', 'E', 'I', 'O'] 
-				tmptags = [e for e in tmptags if len(e) > 0 and not e in stopwords]
+				tmptags = [e for e in tmptags if len(e) > 0 and not e.upper() in stopwords]
 				self.addTags(tmptags)
 
 		def __repr__(self):

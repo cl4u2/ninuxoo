@@ -1,8 +1,13 @@
 #!/usr/bin/env python2
 
 from sambodrone import *
+import sys
 
 MAXTHREADS = 127
+
+urisilos = ResourceSilos()
+resourcestorer = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu', urisilos)
+resourcestorer.start()
 
 ipaddressesfile = open('IpPrefixes.txt')
 dancers = list()
@@ -16,7 +21,7 @@ for ipline in ipaddressesfile:
 						dancers = list()
 				ip = ipline.strip() + str(lastbyte)
 				print ip
-				sd = SambaDancer(ip)
+				sd = SambaDancer(ip, urisilos, resourcestorer)
 				sd.daemon = True
 				sd.start()
 				dancers.append(sd)
@@ -25,3 +30,5 @@ for d in dancers:
 		d.join()
 
 ipaddressesfile.close()
+sys.exit(0)
+

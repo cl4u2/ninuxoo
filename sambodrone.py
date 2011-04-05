@@ -12,22 +12,22 @@ SOCKTIMEOUT = 20
 socket.setdefaulttimeout(SOCKTIMEOUT)
 
 class SambaDancer(threading.Thread):
-		def __init__(self, target):
+		def __init__(self, target, silos, resourcestorer):
 				threading.Thread.__init__(self)
 				self.ctx = smbc.Context()
-				self.rs = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu')
+				self.silos = silos
+				self.rs = resourcestorer
 				self.uri = "smb://" + target
 				self.target = target
 		def dance(self, smburl, depth=0):
 				print smburl
-				res = []
 				if depth > 10: #maximum recursion depth
-						return res
+						return 
 
 				try:
 						entries = self.ctx.opendir(smburl).getdents()
 				except:
-						return res
+						return 
 
 				for e in entries:
 						try:
@@ -43,8 +43,8 @@ class SambaDancer(threading.Thread):
 										r.uri = smburl
 										r.server = self.target
 										r.comment = e.comment
-										res.append(r)
-										res += self.dance(smburl + "/" + e.name, depth+1)
+										self.silos.addRes(r)
+										self.dance(smburl + "/" + e.name, depth+1)
 								except:
 										pass
 										#raise
@@ -53,11 +53,10 @@ class SambaDancer(threading.Thread):
 										r = Resource()
 										r.uri = smburl + "/" + e.name
 										r.server = self.target
-										res.append(r)
+										self.silos.addRes(r)
 								except:
 										pass
 										#raise
-				return res
 		def run(self):
 				time.sleep(1)
 				try:
@@ -69,9 +68,8 @@ class SambaDancer(threading.Thread):
 								return
 						print "%s: port open" % self.target
 						s.close()
-						results = self.dance(self.uri)
-						for res in results:
-								self.rs.store(res)
+						self.dance(self.uri)
+						print "results for %s gathered" % self.target
 				except:
 						raise
 						print "%s error" % self.target

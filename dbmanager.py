@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
+# vim: fileencoding=utf-8:nomodified
 
 import MySQLdb
+import threading
 from resources import *
 
 class MysqlConnectionManager():
@@ -26,8 +28,28 @@ class MysqlConnectionManager():
 		def getMysqlConnection(self):
 				return self.conn
 
+class ResourceSilos():
+		def __init__(self):
+				self.__reslist = list()
+				self.__reslock = threading.Condition()
+		def getRes(self):
+				self.__reslock.acquire()
+				while len(self.__reslist) <= 0:
+						self.__reslock.wait()
+				result = self.__reslist.pop()
+				self.__reslock.release()
+				return result
+		def addRes(self, resource):
+				self.__reslock.acquire()
+				self.__reslist.append(resource)
+				self.__reslock.notify()
+				self.__reslock.release()
 
-class ResourceStorer(MysqlConnectionManager):
+class ResourceStorer(MysqlConnectionManager, threading.Thread):
+		def __init__(self, dbhost, dbuser, dbpassword, database, silos):
+				MysqlConnectionManager.__init__(self, dbhost, dbuser, dbpassword, database)
+				threading.Thread.__init__(self)
+				self.silos = silos
 		def store(self, resource):
 				resource.makeTags()
 				print resource
@@ -61,19 +83,29 @@ class ResourceStorer(MysqlConnectionManager):
 						tag
 				)
 				cursor.execute(insertionstring)
+		def run(self):
+				while(True):
+						r = self.silos.getRes()
+						self.store(r)
 
 class QueryMaker(MysqlConnectionManager):
 		def query(self, query):
 				query.makeTags()
 				#print query
-				res = list()
+				andres = list()
+				orres = list()
 				cursor = self.conn.cursor()
 				if len(query.tags) >= 2:
-						res += self.__andquery(cursor, list(query.tags))
-				if len(res) < 50:
-						res += self.__orquery(cursor, list(query.tags))
+						andres += self.__andquery(cursor, list(query.tags))
+				#TODO: orquery of each tags power subset?
+				#TODO: query based on timestamp:
+				#		first recent 
+				#		then go back in time (last 24*7h, 24*7*4h, 24*7*4*12h)
+				#
+				if len(andres) < 50:
+						orres += self.__orquery(cursor, list(query.tags))
 				cursor.close()
-				return res
+				return [andres, orres]
 		def __orquery(self, cursor, tags):
 				if len(tags) <=0:
 						return []
