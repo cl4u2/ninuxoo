@@ -107,6 +107,7 @@ class QueryResultS():
 
 class QueryMaker(MysqlConnectionManager):
 		likes = 5
+		stopliketags = ['SMB', 'FTP', 'HTTP']
 		def query(self, query, targetresults=200):
 				query.makeTags()
 				qr = QueryResultS()
@@ -134,8 +135,9 @@ class QueryMaker(MysqlConnectionManager):
 								liketags += self.__taglike(cursor, bt, lim)
 						liketags = list(set(liketags).difference(set(badtags)).difference(set(usedtags)))
 						for tag in liketags:
-								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
-						usedtags += liketags
+								if qr.getLen() < targetresults:
+										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+										usedtags.append(tag)
 				if len(goodtags) and qr.getLen() < targetresults:
 						lim = self.likes / len(goodtags) 
 						liketags = []
@@ -143,8 +145,9 @@ class QueryMaker(MysqlConnectionManager):
 								liketags += self.__taglike(cursor, gt, lim)
 						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
 						for tag in liketags:
-								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
-						usedtags += liketags
+								if qr.getLen() < targetresults:
+										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+										usedtags.append(tag)
 				for j in range(4):
 						if qr.getLen() < targetresults:
 								tmptags = [tag[:-j] for tag in alltags if len(tag[:-j]) > 1]
@@ -156,8 +159,9 @@ class QueryMaker(MysqlConnectionManager):
 										liketags += self.__taglike(cursor, tt, lim)
 								liketags = list(set(liketags).difference(set(tmptags)).difference(set(usedtags)))
 								for tag in liketags:
-										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
-								usedtags += liketags
+										if qr.getLen() < targetresults:
+												qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+										usedtags.append(tag)
 
 				cursor.close()
 				return qr
@@ -212,7 +216,7 @@ class QueryMaker(MysqlConnectionManager):
 				LIMIT %d
 				""" % (tag, limit)
 				cursor.execute(selectionstring)
-				return [e[0] for e in cursor.fetchall()]
+				return [e[0] for e in cursor.fetchall() if e[0] not in self.stopliketags]
 
 
 if __name__ == "__main__":
