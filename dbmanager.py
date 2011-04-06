@@ -143,7 +143,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
 						qr.addResultList(self.__orquery(cursor, liketags), liketags, "OR")
 						usedtags += liketags
-				for j in range(3):
+				for j in range(4):
 						if qr.getLen() < self.targetresults:
 								tmptags = [tag[:-j] for tag in alltags if len(tag[:-j]) > 1]
 								if not len(tmptags):
@@ -164,10 +164,10 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT resources.uri, resources.server, resources.filetype 
 				FROM resources JOIN tags ON resources.uri = tags.uri
-				WHERE (resources.timestamp+0 >= NOW()+0 - %d) AND (tags.tag = '%s'""" % (timediff, tags[0])
+				WHERE (resources.timestamp+0 >= NOW()+0 - %d) AND (tags.tag = '%s' """ % (timediff, tags[0])
 				for tag in tags[1:]:
 						selectionstring += "OR tags.tag = '%s'" % tag
-				selectionstring += ") "
+				selectionstring += ") ORDER BY resources.uri DESC"
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
@@ -182,6 +182,7 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring += "WHERE (resources.timestamp+0 >= NOW()+0 - %d) AND t0.tag = '%s' " % (timediff, tags[0])
 				for i in range(1,len(tags)):
 						selectionstring += "AND t%d.tag = '%s' " % (i, tags[i])
+				selectionstring += "ORDER BY resources.uri DESC"
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r

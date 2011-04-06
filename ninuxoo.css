@@ -31,6 +31,21 @@ body {
 		-moz-border-radius: 5px;
 }
 
+.resindex{
+		color: #ffffff;
+		padding-top: 20px;
+		background-color: #222222;
+		border-style: dashed;
+		border-width: 2px;
+		border-color: #ffffff;
+		-moz-border-radius: 5px;
+		padding-bottom: 20px;
+}
+
+.resindex a{
+		color: #ffffff;
+}
+
 .results{
 		padding-top: 20px;
 		background-color: #eeeeee;
@@ -48,4 +63,14 @@ body {
 
 .result a{
 		color: #000000;
+		font-weight: bold;
 }
+
+.restitle {
+		color: #ffffff;
+		font-weight: bold;
+		background-color: #222222;
+		padding-left: 10px;
+		padding-right: 10px;
+}
+

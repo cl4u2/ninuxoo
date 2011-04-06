@@ -59,11 +59,20 @@ resp = qm.query(q)
 
 if resp.getLen() <= 0:
 		print "nessun risultato trovato per \"%s\"" % req
+		sys.exit(0)
+
+if len(resp.labels) > 1:
+		i = 0
+		print "<ul class='resindex'>"
+		for label in resp.labels:
+				print "<li><a href='#res%d'>%s</a></li>" % (i, label)
+				i += 1
+		print "</ul>"
 
 for i in range(len(resp.resultlist)):
 		rlist = resp.resultlist[i]
 		if len(rlist) > 0:
-				print resp.labels[i]
+				print "<a name='res%d' class='restitle'>%s</a>" %(i, resp.labels[i])
 				print "<ul class='results'>"
 				for resource in rlist:
 						print '<li class="result"><a href="%s">%s</a></li>' % (resource.uri, resource.uri)
