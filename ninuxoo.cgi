@@ -57,11 +57,13 @@ qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 q = Query(req)
 resp = qm.query(q)
 
-if sum([len(r) for r in resp]) <= 0:
+if resp.getLen() <= 0:
 		print "nessun risultato trovato per \"%s\"" % req
 
-for rlist in resp:
+for i in range(len(resp.resultlist)):
+		rlist = resp.resultlist[i]
 		if len(rlist) > 0:
+				print resp.labels[i]
 				print "<ul class='results'>"
 				for resource in rlist:
 						print '<li class="result"><a href="%s">%s</a></li>' % (resource.uri, resource.uri)

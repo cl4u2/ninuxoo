@@ -7,10 +7,12 @@ MAXTHREADS = 127
 
 urisilos = ResourceSilos()
 resourcestorer = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu', urisilos)
+resourcestorer.daemon = True
 resourcestorer.start()
 
 ipaddressesfile = open('IpPrefixes.txt')
 dancers = list()
+storers = list()
 for ipline in ipaddressesfile:
 		if len(ipline.strip())<=0 or ipline.strip()[0] == "#":
 				continue

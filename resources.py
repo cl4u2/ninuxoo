@@ -37,7 +37,7 @@ class Resource():
 						urisrest = self.uri
 
 				# split the uris into tags
-				separators = "./\\_' ,-!\"#$%^&*()[];:{}"
+				separators = "./\\_' ,-!\"#$%^&*()[];:{}=@|"
 				tmptags = [urisrest, self.comments, self.server]
 				for s in list(separators):
 						tmptagsnew = list()
