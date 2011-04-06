@@ -106,7 +106,7 @@ class QueryResultS():
 
 
 class QueryMaker(MysqlConnectionManager):
-		targetresults = 200
+		targetresults = 500
 		likes = 5
 		def query(self, query):
 				query.makeTags()
@@ -123,26 +123,29 @@ class QueryMaker(MysqlConnectionManager):
 								badtags.append(tag)
 				if len(goodtags) >= 2:
 						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND")
+				usedtags = []
 				if qr.getLen() < self.targetresults:
 						qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
+						usedtags += goodtags
 				if len(badtags) and qr.getLen() < self.targetresults:
 						lim = self.likes / len(badtags) 
 						liketags = []
 						for bt in badtags:
 								liketags += self.__taglike(cursor, bt, lim)
-						liketags = list(set(liketags).difference(set(badtags)))
+						liketags = list(set(liketags).difference(set(badtags)).difference(set(usedtags)))
 						qr.addResultList(self.__orquery(cursor, liketags), liketags, "OR")
+						usedtags += liketags
 				if len(goodtags) and qr.getLen() < self.targetresults:
 						lim = self.likes / len(goodtags) 
 						liketags = []
 						for gt in goodtags:
 								liketags += self.__taglike(cursor, gt, lim)
-						liketags = list(set(liketags).difference(set(goodtags)))
+						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
 						qr.addResultList(self.__orquery(cursor, liketags), liketags, "OR")
-				usedtags = []
+						usedtags += liketags
 				for j in range(3):
 						if qr.getLen() < self.targetresults:
-								tmptags = [tag[:-j] for tag in alltags if len(tag[:-j]) > 0]
+								tmptags = [tag[:-j] for tag in alltags if len(tag[:-j]) > 1]
 								if not len(tmptags):
 										continue
 								lim = self.likes / len(tmptags)
@@ -200,6 +203,8 @@ class QueryMaker(MysqlConnectionManager):
 				SELECT tag
 				FROM tags 
 				WHERE tag LIKE '%%%s%%' AND tags.timestamp+0 >= (NOW()+0 - 31536000) 
+				GROUP BY tag
+				ORDER BY COUNT(tag) DESC
 				LIMIT %d
 				""" % (tag, limit)
 				cursor.execute(selectionstring)
