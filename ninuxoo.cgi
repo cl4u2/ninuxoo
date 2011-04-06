@@ -58,7 +58,9 @@ q = Query(req)
 resp = qm.query(q)
 
 if resp.getLen() <= 0:
+		print "<ul class='resindex'>"
 		print "nessun risultato trovato per \"%s\"" % req
+		print "</ul>"
 		sys.exit(0)
 
 if len(resp.labels) > 1:

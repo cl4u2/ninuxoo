@@ -106,9 +106,8 @@ class QueryResultS():
 
 
 class QueryMaker(MysqlConnectionManager):
-		targetresults = 500
 		likes = 5
-		def query(self, query):
+		def query(self, query, targetresults=200):
 				query.makeTags()
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
@@ -124,27 +123,30 @@ class QueryMaker(MysqlConnectionManager):
 				if len(goodtags) >= 2:
 						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND")
 				usedtags = []
-				if qr.getLen() < self.targetresults:
-						qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
+				if qr.getLen() < targetresults:
+						for tag in goodtags:
+								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 						usedtags += goodtags
-				if len(badtags) and qr.getLen() < self.targetresults:
+				if len(badtags) and qr.getLen() < targetresults:
 						lim = self.likes / len(badtags) 
 						liketags = []
 						for bt in badtags:
 								liketags += self.__taglike(cursor, bt, lim)
 						liketags = list(set(liketags).difference(set(badtags)).difference(set(usedtags)))
-						qr.addResultList(self.__orquery(cursor, liketags), liketags, "OR")
+						for tag in liketags:
+								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 						usedtags += liketags
-				if len(goodtags) and qr.getLen() < self.targetresults:
+				if len(goodtags) and qr.getLen() < targetresults:
 						lim = self.likes / len(goodtags) 
 						liketags = []
 						for gt in goodtags:
 								liketags += self.__taglike(cursor, gt, lim)
 						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
-						qr.addResultList(self.__orquery(cursor, liketags), liketags, "OR")
+						for tag in liketags:
+								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 						usedtags += liketags
 				for j in range(4):
-						if qr.getLen() < self.targetresults:
+						if qr.getLen() < targetresults:
 								tmptags = [tag[:-j] for tag in alltags if len(tag[:-j]) > 1]
 								if not len(tmptags):
 										continue
@@ -153,7 +155,8 @@ class QueryMaker(MysqlConnectionManager):
 								for tt in tmptags:
 										liketags += self.__taglike(cursor, tt, lim)
 								liketags = list(set(liketags).difference(set(tmptags)).difference(set(usedtags)))
-								qr.addResultList(self.__orquery(cursor, liketags), liketags, "OR")
+								for tag in liketags:
+										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 								usedtags += liketags
 
 				cursor.close()
