@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from sambodrone import *
+from ftpdrone import *
 import sys
 
 MAXTHREADS = 127
@@ -12,7 +13,6 @@ resourcestorer.start()
 
 ipaddressesfile = open('IpPrefixes.txt')
 dancers = list()
-storers = list()
 for ipline in ipaddressesfile:
 		if len(ipline.strip())<=0 or ipline.strip()[0] == "#":
 				continue
@@ -24,9 +24,13 @@ for ipline in ipaddressesfile:
 				ip = ipline.strip() + str(lastbyte)
 				print ip
 				sd = SambaDancer(ip, urisilos, resourcestorer)
+				fd = FtpDancer(ip, urisilos, resourcestorer)
 				sd.daemon = True
+				fd.daemon = True
 				sd.start()
+				fd.start()
 				dancers.append(sd)
+				dancers.append(fd)
 
 for d in dancers:
 		d.join()
