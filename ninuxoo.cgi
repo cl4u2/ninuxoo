@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8:syntax=python:nomodified
 
 import cgitb
@@ -21,9 +21,36 @@ except:
 
 outputhead = """
 <html>
-<head><title>ninuXoo!</title></head>
+<head>
+<title>ninuXoo!</title>
+<script src="https://www.google.com/jsapi"></script>
+<script>
+	google.load('jquery', '1.3.1');
+</script>
+<script type="text/javascript">                                         
+function load_voip() {
+	$('#result').load('/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org #content', function() {
+	$("#result a").removeAttr("href")
+});
+}	
+function load_nas() {
+	$('#result').load('/cgi-bin/proxy_wiki.cgi?url=Ninux_NAS #content', function() {
+	// $("#result a").removeAttr("href")
+});
+}
+</script>
+</head>
 <link rel="stylesheet" href="/ninuxoo/ninuxoo.css" type="text/css" />
 <body>
+<div id="navmenu"> 
+	<ul> 
+		<li><a href="/">Cerca</a></li> 
+		<li><a href="javascript:load_nas()">Files</a></li> 
+		<li><a href="javascript:load_voip()">VoIP</a></li> 
+		<li><a href="http://webmail.ninux.org/">WebMail</a></li> 
+		<li><a href="">Meteo</a></li> 
+	</ul> 
+</div> 
 <div class="logo">
 <a href="/cgi-bin/ninuxoo.cgi">
 <img src="/ninuxoo/ninuxoo.png" border="0" alt="ninuXoo!"/>
@@ -31,8 +58,10 @@ outputhead = """
 </div>
 <br />
 <br />
+<div id="result">
 """
 outputtail = """
+</div>
 </body>
 </html>
 """

@@ -1,6 +1,7 @@
 -- MySQL DB Schema
 
-drop database ninuxuu;
+-- drop database ninuxuu;
+
 CREATE database ninuxuu;
 USE ninuxuu;
 

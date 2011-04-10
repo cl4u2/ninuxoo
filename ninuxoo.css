@@ -2,6 +2,10 @@ body {
 		font-family: monospace;
 }
 
+a:hover {
+		font-weight:bold;
+}
+
 .logo {
 		text-align:center;
 }
@@ -74,3 +78,31 @@ body {
 		padding-right: 10px;
 }
 
+#navmenu ul {
+		padding-top: 8px;
+		color: #ffffff;
+		background-color: #222222;
+		border-style: dashed;
+		border-width: 2px;
+		border-color: #ffffff;
+		-moz-border-radius: 5px;
+		padding-bottom: 8px;
+		margin-bottom: 30px;
+}
+#navmenu li {display: inline; }
+#navmenu ul li a {
+		padding: 5px 40px 5px 0px; 
+		color: #ffffff;
+}
+
+td {
+	border-width: 1px;
+	border-style: solid;
+	border-color: #000000;
+}
+
+th {
+	border-width: 1px;
+	border-style: solid;
+	border-color: #222222;
+}
