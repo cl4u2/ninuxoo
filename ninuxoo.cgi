@@ -13,41 +13,30 @@ print
 
 fs = cgi.FieldStorage()
 try:
-		rk = fs.keys()[0]
-		req = fs.getfirst(rk, "")
+		#rk = fs.keys()[0]
+		#req = fs.getfirst(rk, "")
+		req = fs['q'].value
 except:
 		req = ""
+try:
+		nres = int(fs['n'].value)
+except:
+		nres = 50
 
 
 outputhead = """
 <html>
 <head>
 <title>ninuXoo!</title>
-<script src="https://www.google.com/jsapi"></script>
-<script>
-	google.load('jquery', '1.3.1');
-</script>
-<script type="text/javascript">                                         
-function load_voip() {
-	$('#result').load('/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org #content', function() {
-	$("#result a").removeAttr("href")
-});
-}	
-function load_nas() {
-	$('#result').load('/cgi-bin/proxy_wiki.cgi?url=Ninux_NAS #content', function() {
-	// $("#result a").removeAttr("href")
-});
-}
-</script>
 </head>
 <link rel="stylesheet" href="/ninuxoo/ninuxoo.css" type="text/css" />
 <body>
 <div id="navmenu"> 
 	<ul> 
 		<li><a href="/">Cerca</a></li> 
-		<li><a href="javascript:load_nas()">Files</a></li> 
-		<li><a href="javascript:load_voip()">VoIP</a></li> 
-		<li><a href="http://webmail.ninux.org/">WebMail</a></li> 
+		<li><a href="/cgi-bin/browse_share.cgi">Files</a></li> 
+		<li><a href="/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org">VoIP</a></li> 
+		<li><a href="http://10.162.0.85/">WebMail</a></li> 
 		<li><a href="">Meteo</a></li> 
 	</ul> 
 </div> 
@@ -84,12 +73,13 @@ if len(req) <= 0:
 
 qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 q = Query(req)
-resp = qm.query(q)
+resp = qm.query(q, nres)
 
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
 		print "nessun risultato trovato per \"%s\"" % req
 		print "</ul>"
+		print outputtail
 		sys.exit(0)
 
 if len(resp.labels) > 1:
@@ -108,4 +98,20 @@ for i in range(len(resp.resultlist)):
 				for resource in rlist:
 						print '<li class="result"><a href="%s">%s</a></li>' % (resource.uri, resource.uri)
 				print "</ul>"
+
+
+print """
+<div class ="searchform">
+<form method='GET' action='/cgi-bin/ninuxoo.cgi'>
+<strong>Ricerca:</strong> 
+<input type='text' name='q' value='%s' size="42"/>
+Risultati: 
+<input type='text' name='n' value='%s' size="5"/>
+<input type='submit' value='go!' />
+</form>
+</div>
+""" % (req, nres)
+
+print outputtail
+
 

@@ -95,14 +95,39 @@ a:hover {
 		color: #ffffff;
 }
 
-td {
+td, th {
 	border-width: 1px;
 	border-style: solid;
 	border-color: #000000;
 }
 
-th {
-	border-width: 1px;
-	border-style: solid;
-	border-color: #222222;
+ul.files {
+	margin-left: 0;
+	padding-left: 0;
+	list-style: none;
+
+}
+
+li.browse
+{
+	background-image: url(/ninuxoo/browse.png);
+	background-repeat: no-repeat;
+	background-position:  0.5em 0em;
+	padding: 5px 5px 5px 50px;
+}
+
+li.download
+{
+	padding: 5px 5px 5px 50px;
+	background-image: url(/ninuxoo/download.png);
+	background-repeat: no-repeat;
+	background-position: 0.5em 0em;
+}
+
+li.resource
+{
+	padding: 5px 5px 5px 50px;
+	background-image: url(/ninuxoo/resource.png);
+	background-repeat: no-repeat;
+	background-position: 0.5em 0em;
 }

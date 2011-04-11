@@ -3,6 +3,7 @@
 import sys
 import cgi
 import urllib2
+import BeautifulSoup
 
 sys.stderr = sys.stdout
 
@@ -33,9 +34,40 @@ def pagefetch(thepage):
     data = u.read()
     return data
 
-        
-        
+pre_html = '''
+<html>
+<head>
+<title>ninuXoo! - VoIP</title>
+</head>
+<link rel="stylesheet" href="/ninuxoo/ninuxoo.css" type="text/css" />
+<body>
+<div id="navmenu"> 
+        <ul> 
+                <li><a href="/">Cerca</a></li> 
+                <li><a href="/cgi-bin/browse_share.cgi">Files</a></li> 
+                <li><a href="/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org">VoIP</a></li> 
+                <li><a href="http://10.162.0.85/">WebMail</a></li> 
+                <li><a href="">Meteo</a></li> 
+        </ul> 
+</div> 
+<div class="logo">
+<a href="/cgi-bin/ninuxoo.cgi">
+<img src="/ninuxoo/ninuxoo.png" border="0" alt="ninuXoo!"/>
+</a>
+</div>
+<br />
+<br />
+<div id="result">
+'''
+
+post_html = '''
+</div>
+</body>
+</html>
+'''
 ###################################################
+
+
 
 if __name__ == '__main__':
     form = cgi.FieldStorage()           
@@ -43,5 +75,9 @@ if __name__ == '__main__':
     if not data['url']: data['url'] = HOMEPAGE
     print "Content-type: text/html"         # this is the header to the server
     print                                   # so is this blank line
-    test = pagefetch('http://' + 'wiki.ninux.org/' + data['url'])
-    print test
+    data = pagefetch('http://' + 'wiki.ninux.org/' + data['url'])
+    print pre_html
+    soup = BeautifulSoup.BeautifulSoup(data)
+    print soup.find("div", {"id": "content"})
+    print post_html
+    print "" 

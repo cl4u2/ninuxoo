@@ -106,9 +106,9 @@ class QueryResultS():
 
 
 class QueryMaker(MysqlConnectionManager):
-		likes = 5
+		likes = 3
 		stopliketags = ['SMB', 'FTP', 'HTTP']
-		def query(self, query, targetresults=200):
+		def query(self, query, targetresults=150):
 				query.makeTags()
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
@@ -165,7 +165,7 @@ class QueryMaker(MysqlConnectionManager):
 
 				cursor.close()
 				return qr
-		def __orquery(self, cursor, tags, timediff=2419200):
+		def __orquery(self, cursor, tags, timediff=604800):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -178,7 +178,7 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __andquery(self, cursor, tags, timediff=2419200):
+		def __andquery(self, cursor, tags, timediff=604800):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -193,7 +193,7 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __tagstat(self, cursor, tag, timediff=2419200):
+		def __tagstat(self, cursor, tag, timediff=604800):
 				selectionstring = """
 				SELECT tag, count(tag) AS tagcount 
 				FROM tags 
@@ -206,7 +206,7 @@ class QueryMaker(MysqlConnectionManager):
 						return int(r[1])
 				else:
 						return 0
-		def __taglike(self, cursor, tag, limit=3, timediff=2419200):
+		def __taglike(self, cursor, tag, limit=3, timediff=604800):
 				selectionstring = """
 				SELECT tag
 				FROM tags 
