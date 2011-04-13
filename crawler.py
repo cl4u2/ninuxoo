@@ -23,8 +23,8 @@ for ipline in ipaddressesfile:
 						dancers = list()
 				ip = ipline.strip() + str(lastbyte)
 				print ip
-				sd = SambaDancer(ip, urisilos, resourcestorer)
-				fd = FtpDancer(ip, urisilos, resourcestorer)
+				sd = SambaDancer(ip, urisilos)
+				fd = FtpDancer(ip, urisilos)
 				sd.daemon = True
 				fd.daemon = True
 				sd.start()

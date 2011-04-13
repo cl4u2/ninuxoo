@@ -12,11 +12,10 @@ SOCKTIMEOUT = 20
 socket.setdefaulttimeout(SOCKTIMEOUT)
 
 class SambaDancer(threading.Thread):
-		def __init__(self, target, silos, resourcestorer):
+		def __init__(self, target, silos):
 				threading.Thread.__init__(self)
 				self.ctx = smbc.Context()
 				self.silos = silos
-				self.rs = resourcestorer
 				self.uri = "smb://" + target
 				self.target = target
 		def dance(self, smburl, depth=0):
@@ -43,7 +42,10 @@ class SambaDancer(threading.Thread):
 										r.uri = smburl
 										r.server = self.target
 										r.comment = e.comment
-										self.silos.addRes(r)
+										try:
+												self.silos.addRes(r)
+										except:
+												print r
 										self.dance(smburl + "/" + e.name, depth+1)
 								except:
 										pass
@@ -53,7 +55,10 @@ class SambaDancer(threading.Thread):
 										r = Resource()
 										r.uri = smburl + "/" + e.name
 										r.server = self.target
-										self.silos.addRes(r)
+										try:
+												self.silos.addRes(r)
+										except:
+												print r
 								except:
 										pass
 										#raise
@@ -77,6 +82,6 @@ class SambaDancer(threading.Thread):
 
 if __name__ == "__main__":
 		#s = SambaDancer("192.168.69.8")
-		s = SambaDancer("10.176.0.176")
+		s = SambaDancer("10.176.0.176", None, None)
 		s.run()
 

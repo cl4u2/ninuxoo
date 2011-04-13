@@ -14,14 +14,13 @@ socket.setdefaulttimeout(SOCKTIMEOUT)
 
 class Entry():
 		def __init__(self, ftpline):
-				self.isdir = ftpline.startswith('d')
+				self.isdir = ftpline.strip().startswith('d')
 				self.name = ftpline.split()[-1]
 
 class FtpDancer(threading.Thread):
-		def __init__(self, target, silos, resourcestorer):
+		def __init__(self, target, silos):
 				threading.Thread.__init__(self)
 				self.silos = silos
-				self.rs = resourcestorer
 				self.uri = "ftp://" + target
 				self.target = target
 		def dance(self, ftpurl, depth=0):
@@ -32,12 +31,11 @@ class FtpDancer(threading.Thread):
 				if depth > 10: #maximum recursion depth
 						return 
 
-				m = re.search(".*://[^/]*(.*)", self.uri)
+				m = re.search(".*://[^/]*(.*)", ftpurl)
 				if m and len(m.group(1)) > 0: # the rest of the uri
 						currentdir = m.group(1)
 				else:
 						currentdir = "/"
-				print currentdir
 
 				entries = []
 				try:
@@ -49,17 +47,22 @@ class FtpDancer(threading.Thread):
 				for e in entries:
 						if e.name.startswith('.'):
 								continue
-						if not e.isdir:
+						if e.isdir:
 								r = Resource()
 								r.uri = ftpurl
 								r.server = self.target
-								self.silos.addRes(r)
+								try:
+										self.silos.addRes(r)
+								except:
 								self.dance(ftpurl + "/" + e.name, depth+1)
 						else:
 								r = Resource()
 								r.uri = ftpurl + "/" + e.name
 								r.server = self.target
-								self.silos.addRes(r)
+								try:
+										self.silos.addRes(r)
+								except:
+										pass
 		def run(self):
 				time.sleep(1)
 				try:
@@ -80,6 +83,5 @@ class FtpDancer(threading.Thread):
 						print "%s error" % self.target
 
 if __name__ == "__main__":
-		pass
-		#s = FtpDancer("ftp.kernel.org", None, None)
-		#s.run()
+		s = FtpDancer("10.168.177.179", None)
+		s.run()
