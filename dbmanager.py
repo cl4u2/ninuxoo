@@ -112,12 +112,13 @@ class QueryMaker(MysqlConnectionManager):
 				query.makeTags()
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
-				# separate good from bad
+				# separate the good from the bad
 				goodtags = []
 				badtags = []
 				alltags = list(query.tags)
-				for tag in alltags:
-						if self.__tagstat(cursor, tag) > 0:
+				tagstats = self.__tagstats(cursor, alltags)
+				for tag in tagstats:
+						if tagstats[tag] > 1:
 								goodtags.append(tag)
 						else:
 								badtags.append(tag)
@@ -125,8 +126,9 @@ class QueryMaker(MysqlConnectionManager):
 						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND")
 				usedtags = []
 				if qr.getLen() < targetresults:
-						for tag in goodtags:
-								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+						qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
+						#for tag in goodtags:
+						#		qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 						usedtags += goodtags
 				if len(badtags) and qr.getLen() < targetresults:
 						lim = self.likes / len(badtags) 
@@ -148,7 +150,7 @@ class QueryMaker(MysqlConnectionManager):
 								if qr.getLen() < targetresults:
 										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 										usedtags.append(tag)
-				for j in range(4):
+				for j in range(1,4):
 						if qr.getLen() < targetresults:
 								tmptags = [tag[:-j] for tag in alltags if len(tag[:-j]) > 1]
 								if not len(tmptags):
@@ -193,24 +195,25 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __tagstat(self, cursor, tag, timediff=604800):
+		def __tagstats(self, cursor, taglist, timediff=604800):
+				tagdict = {}
 				selectionstring = """
 				SELECT tag, count(tag) AS tagcount 
 				FROM tags 
-				WHERE tag='%s' AND tags.timestamp+0 >= (NOW()+0 - 31536000) 
-				GROUP BY tag
-				""" % tag
+				WHERE tags.timestamp+0 >= (NOW()+0 - %d) AND (tags.tag = '%s' """ % (timediff, taglist[0])
+				for tag in taglist[1:]:
+						selectionstring += "OR tags.tag = '%s'" % tag
+				selectionstring += ") GROUP BY tag" 
 				cursor.execute(selectionstring)
-				r = cursor.fetchone()
-				if r:
-						return int(r[1])
-				else:
-						return 0
+				r = cursor.fetchall()
+				for row in r:
+						tagdict.update({row[0]: row[1]})
+				return tagdict
 		def __taglike(self, cursor, tag, limit=3, timediff=604800):
 				selectionstring = """
 				SELECT tag
 				FROM tags 
-				WHERE tag LIKE '%%%s%%' AND tags.timestamp+0 >= (NOW()+0 - 31536000) 
+				WHERE tag LIKE '%s%%' AND tags.timestamp+0 >= (NOW()+0 - 31536000) 
 				GROUP BY tag
 				ORDER BY COUNT(tag) DESC
 				LIMIT %d

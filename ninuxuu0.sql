@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `tags` (
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
 -- CREATE OR REPLACE ALGORITHM=TEMPTABLE VIEW `tagstats` AS SELECT SQL_CACHE tag, count(tag) AS tagcount FROM tags WHERE tags.timestamp+0 >= (NOW()+0 - 31536000) GROUP BY tag;
+CREATE INDEX tagnameindex ON tags (tag);
 
 CREATE USER 'ninuu'@'localhost' IDENTIFIED BY 'ciaociao';
 GRANT ALL PRIVILEGES ON ninuxuu.* TO 'ninuu'@'localhost';
