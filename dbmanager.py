@@ -176,7 +176,7 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT resources.uri, resources.server, resources.filetype 
 				FROM resources JOIN tags ON resources.uri = tags.uri
-				WHERE (resources.timestamp+0 >= NOW()+0 - %d) AND (tags.tag = '%s' """ % (timediff, tags[0])
+				WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) AND (tags.tag = '%s' """ % (timediff, tags[0])
 				for tag in tags[1:]:
 						selectionstring += "OR tags.tag = '%s'" % tag
 				selectionstring += ") ORDER BY resources.uri DESC"
@@ -191,7 +191,7 @@ class QueryMaker(MysqlConnectionManager):
 				FROM resources JOIN tags AS t0 ON resources.uri = t0.uri """ 
 				for i in range(1,len(tags)):
 						selectionstring += "JOIN tags as t%d ON t%d.uri = t%d.uri " % (i, i-1, i)
-				selectionstring += "WHERE (resources.timestamp+0 >= NOW()+0 - %d) AND t0.tag = '%s' " % (timediff, tags[0])
+				selectionstring += "WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) AND t0.tag = '%s' " % (timediff, tags[0])
 				for i in range(1,len(tags)):
 						selectionstring += "AND t%d.tag = '%s' " % (i, tags[i])
 				selectionstring += "ORDER BY resources.uri DESC"
@@ -203,7 +203,7 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT tag, count(tag) AS tagcount 
 				FROM tags 
-				WHERE tags.timestamp+0 >= (NOW()+0 - %d) AND (tags.tag = '%s' """ % (timediff, taglist[0])
+				WHERE UNIX_TIMESTAMP(tags.timestamp) >= (UNIX_TIMESTAMP(NOW()) - %d) AND (tags.tag = '%s' """ % (timediff, taglist[0])
 				for tag in taglist[1:]:
 						selectionstring += "OR tags.tag = '%s'" % tag
 				selectionstring += ") GROUP BY tag" 
@@ -216,7 +216,7 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT tag
 				FROM tags 
-				WHERE tag LIKE '%s%%' AND tags.timestamp+0 >= (NOW()+0 - %d) 
+				WHERE tag LIKE '%s%%' AND UNIX_TIMESTAMP(tags.timestamp) >= (UNIX_TIMESTAMP(NOW()) - %d) 
 				GROUP BY tag
 				ORDER BY COUNT(tag) DESC
 				LIMIT %d
@@ -230,7 +230,7 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT count(uri) 
 				FROM resources 
-				WHERE timestamp+0 >= now() - %d""" % timediff
+				WHERE UNIX_TIMESTAMP(timestamp) >= UNIX_TIMESTAMP(NOW()) - %d""" % timediff
 				cursor.execute(selectionstring)
 				return cursor.fetchone()[0]
 		def getServerStats(self):
@@ -242,7 +242,7 @@ class QueryMaker(MysqlConnectionManager):
 				FROM (
 					SELECT server 
 					FROM resources 
-					WHERE timestamp+0 >= now() - %d 
+					WHERE UNIX_TIMESTAMP(timestamp) >= UNIX_TIMESTAMP(NOW()) - %d 
 					GROUP by server) AS s """ % timediff
 				cursor.execute(selectionstring)
 				return cursor.fetchone()[0]
