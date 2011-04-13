@@ -54,7 +54,7 @@ class FtpDancer(threading.Thread):
 								try:
 										self.silos.addRes(r)
 								except:
-								self.dance(ftpurl + "/" + e.name, depth+1)
+										self.dance(ftpurl + "/" + e.name, depth+1)
 						else:
 								r = Resource()
 								r.uri = ftpurl + "/" + e.name
