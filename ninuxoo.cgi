@@ -106,7 +106,7 @@ for i in range(len(resp.resultlist)):
 
 
 print """
-<div class ="searchform">
+<div class ="searchform" id="bottomsearchform">
 <form method='GET' action='/cgi-bin/ninuxoo.cgi'>
 <strong>Ricerca:</strong> 
 <input type='text' name='q' value='%s' size="42"/>
