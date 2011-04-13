@@ -216,11 +216,11 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring = """
 				SELECT tag
 				FROM tags 
-				WHERE tag LIKE '%s%%' AND tags.timestamp+0 >= (NOW()+0 - 31536000) 
+				WHERE tag LIKE '%s%%' AND tags.timestamp+0 >= (NOW()+0 - %d) 
 				GROUP BY tag
 				ORDER BY COUNT(tag) DESC
 				LIMIT %d
-				""" % (tag, limit)
+				""" % (tag, timediff, limit)
 				cursor.execute(selectionstring)
 				return [e[0] for e in cursor.fetchall() if e[0] not in self.stopliketags]
 		def getResourceStats(self):
