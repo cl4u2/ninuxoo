@@ -5,6 +5,7 @@ import cgitb
 cgitb.enable()
 import cgi
 import sys
+import time
 from dbmanager import QueryMaker
 from resources import Query
 
@@ -78,7 +79,9 @@ if len(req) <= 0:
 
 
 q = Query(req)
+tsta = time.time()
 resp = qm.query(q, nres)
+tend = time.time()
 
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
@@ -86,6 +89,11 @@ if resp.getLen() <= 0:
 		print "</ul>"
 		print outputtail
 		sys.exit(0)
+		
+try:
+		print "<div class='resstats'>%d risultati trovati in %.3f secondi </div>" % (resp.getLen(), tend-tsta)
+except:
+		pass
 
 if len(resp.labels) > 1:
 		i = 0
@@ -116,6 +124,7 @@ Risultati (min):
 </form>
 </div>
 """ % (req, nres)
+
 
 print outputtail
 
