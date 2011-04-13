@@ -21,7 +21,7 @@ except:
 try:
 		nres = int(fs['n'].value)
 except:
-		nres = 50
+		nres = 200
 
 
 outputhead = """
@@ -66,12 +66,17 @@ print """
 </div>
 """ %req
 
+qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
+
 if len(req) <= 0:
+		try:
+				print "<div class='resstats'> %d risorse indicizzate su %d server </div>" % (qm.getResourceStats(), qm.getServerStats())
+		except:
+				pass
 		print outputtail
 		sys.exit(0)
 
 
-qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 q = Query(req)
 resp = qm.query(q, nres)
 
@@ -105,7 +110,7 @@ print """
 <form method='GET' action='/cgi-bin/ninuxoo.cgi'>
 <strong>Ricerca:</strong> 
 <input type='text' name='q' value='%s' size="42"/>
-Risultati: 
+Risultati (min): 
 <input type='text' name='n' value='%s' size="5"/>
 <input type='submit' value='go!' />
 </form>

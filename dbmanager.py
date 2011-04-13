@@ -108,7 +108,7 @@ class QueryResultS():
 class QueryMaker(MysqlConnectionManager):
 		likes = 3
 		stopliketags = ['SMB', 'FTP', 'HTTP']
-		def query(self, query, targetresults=150):
+		def query(self, query, targetresults=200):
 				query.makeTags()
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
@@ -117,21 +117,24 @@ class QueryMaker(MysqlConnectionManager):
 				badtags = []
 				alltags = list(query.tags)
 				tagstats = self.__tagstats(cursor, alltags)
-				for tag in tagstats:
-						if tagstats[tag] > 1:
-								goodtags.append(tag)
-						else:
-								badtags.append(tag)
+				if len(tagstats) == 0:
+						badtags = alltags[:]
+				else:
+						for tag in tagstats:
+								if tagstats.has_key(tag) and tagstats[tag] > 0:
+										goodtags.append(tag)
+								else:
+										badtags.append(tag)
 				if len(goodtags) >= 2:
 						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND")
 				usedtags = []
 				if qr.getLen() < targetresults:
-						qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
-						#for tag in goodtags:
-						#		qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+						#qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
+						for tag in goodtags:
+								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 						usedtags += goodtags
-				if len(badtags) and qr.getLen() < targetresults:
-						lim = self.likes / len(badtags) 
+				if len(badtags) > 0 and qr.getLen() < targetresults:
+						lim = 1 + self.likes / len(badtags) 
 						liketags = []
 						for bt in badtags:
 								liketags += self.__taglike(cursor, bt, lim)
@@ -140,8 +143,8 @@ class QueryMaker(MysqlConnectionManager):
 								if qr.getLen() < targetresults:
 										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
 										usedtags.append(tag)
-				if len(goodtags) and qr.getLen() < targetresults:
-						lim = self.likes / len(goodtags) 
+				if len(goodtags) > 0 and qr.getLen() < targetresults:
+						lim = 1 + self.likes / len(goodtags) 
 						liketags = []
 						for gt in goodtags:
 								liketags += self.__taglike(cursor, gt, lim)
@@ -220,6 +223,29 @@ class QueryMaker(MysqlConnectionManager):
 				""" % (tag, limit)
 				cursor.execute(selectionstring)
 				return [e[0] for e in cursor.fetchall() if e[0] not in self.stopliketags]
+		def getResourceStats(self):
+				cursor = self.conn.cursor()
+				return self.__resourcestats(cursor)
+		def __resourcestats(self, cursor, timediff=604800):
+				selectionstring = """
+				SELECT count(uri) 
+				FROM resources 
+				WHERE timestamp+0 >= now() - %d""" % timediff
+				cursor.execute(selectionstring)
+				return cursor.fetchone()[0]
+		def getServerStats(self):
+				cursor = self.conn.cursor()
+				return self.__serverstats(cursor)
+		def __serverstats(self, cursor, timediff=604800):
+				selectionstring = """
+				SELECT count(server) 
+				FROM (
+					SELECT server 
+					FROM resources 
+					WHERE timestamp+0 >= now() - %d 
+					GROUP by server) AS s """ % timediff
+				cursor.execute(selectionstring)
+				return cursor.fetchone()[0]
 
 
 if __name__ == "__main__":

@@ -131,3 +131,9 @@ li.resource
 	background-repeat: no-repeat;
 	background-position: 0.5em 0em;
 }
+
+.resstats{
+		text-align:center;
+		font-weight: bold;
+}
+
