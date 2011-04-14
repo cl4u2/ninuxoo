@@ -64,12 +64,16 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				REPLACE INTO resources (
 						uri, 
 						server,
+						protocol,
+						path,
 						filetype
 				) VALUES (
-				'%s', '%s', '%s')""" % (
+				'%s', '%s', '%s', '%s', '%s')""" % (
 						resource.uri.strip().replace("'","\\'"),
-						resource.server,
-						resource.filetype
+						resource.server.strip().replace("'","\\'"),
+						resource.protocol.strip().replace("'","\\'"),
+						resource.path.strip().replace("'","\\'"),
+						resource.filetype.strip().replace("'","\\'")
 				)
 				cursor.execute(insertionstring)
 		def __insertTags(self, cursor, uri, tag):
@@ -200,6 +204,8 @@ class QueryMaker(MysqlConnectionManager):
 				return r
 		def __tagstats(self, cursor, taglist, timediff=604800):
 				tagdict = {}
+				if len(taglist) <= 0:
+						return tagdict
 				selectionstring = """
 				SELECT tag, count(tag) AS tagcount 
 				FROM tags 

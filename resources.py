@@ -2,20 +2,21 @@
 
 import re
 
-class Filetype():
-		UNKNOWN, VIDEO, AUDIO, PDF = range(4)
-
 class Resource():
 		uri = ""
 		comments =""
 		server = ""
+		path = ""
+		protocol = ""
 		tags = set() 
 		filetype = ""
-		def __init__(self, uri="", comments="", server="", filetype=Filetype.UNKNOWN):
+		def __init__(self, uri="", server=""):
 				self.uri = uri.strip()
-				self.comments = comments
+				self.comments = ""
 				self.server = server
-				self.filetype = filetype
+				self.path = ""
+				self.protocol = ""
+				self.filetype = "" 
 				self.tags = set()
 		def addTags(self, newtags):
 				if newtags.__class__ == list:
@@ -26,16 +27,29 @@ class Resource():
 		def makeTags(self):
 				"populate the tags attribute from the uri and comments attributes"
 				# add the server's ip address
-				m = re.search("(.*)://([^/]*)(.*)", self.uri)
-				if m and len(m.group(1)) > 0: # uri type
-						self.addTags(m.group(1))
-				if m and len(m.group(2)) > 0: # server name
+				m = re.match("([a-z]{3,4})://([^/]*)/(.*)\.([a-zA-Z0-9]{2,4}$)", self.uri)
+				try: # protocol
+						self.protocol = m.group(1)
+						self.addTags(self.protocol)
+				except:
+						self.protocol = ""
+				try: # server
+						#assert self.server == m.group(2)
 						self.addTags(m.group(2))
-				if m and len(m.group(3)) > 0: # the rest of the uri
+				except:
+						pass
+				try: # path
 						urisrest = m.group(3)
-				else:
+						self.path = urisrest
+				except:
 						urisrest = self.uri
-
+				try: # filetype
+						self.filetype = m.group(4).upper()
+						self.addTags(self.filetype)
+						self.path += "." + m.group(4)
+				except:
+						self.filetype = ""
+				
 				# split the uris into tags
 				separators = "./\\_' ,-!\"#$%^&*()[];:{}=@|"
 				tmptags = [urisrest, self.comments, self.server]
@@ -60,4 +74,14 @@ class Query(Resource):
 		def __init__(self, query):
 				Resource.__init__(self)
 				self.uri = query
+
+if __name__ == "__main__":
+		r = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciao.ciao/bello.mp3", server="10.0.1.1")
+		r.makeTags()
+		print r
+		print r.protocol, "|", r.server, "|", r.path, "|", r.filetype
+		q = Query("ciao")
+		q.makeTags()
+		print q
+
 

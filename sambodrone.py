@@ -5,7 +5,7 @@ import smbc
 import threading
 import time
 import socket
-from resources import Filetype, Resource
+from resources import Resource
 from dbmanager import *
 
 SOCKTIMEOUT = 20
