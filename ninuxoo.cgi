@@ -83,10 +83,23 @@ tsta = time.time()
 resp = qm.query(q, nres)
 tend = time.time()
 
+bottomform = """
+<div class ="searchform" id="bottomsearchform">
+<form method='GET' action='/cgi-bin/ninuxoo.cgi'>
+<strong>Ricerca:</strong> 
+<input type='text' name='q' value='%s' size="42"/>
+Risultati (min): 
+<input type='text' name='n' value='%s' size="5"/>
+<input type='submit' value='go!' />
+</form>
+</div>
+""" % (req, nres)
+
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
 		print "nessun risultato trovato per \"%s\"" % req
 		print "</ul>"
+		print bottomform
 		print outputtail
 		sys.exit(0)
 		
@@ -113,19 +126,7 @@ for i in range(len(resp.resultlist)):
 				print "</ul>"
 
 
-print """
-<div class ="searchform" id="bottomsearchform">
-<form method='GET' action='/cgi-bin/ninuxoo.cgi'>
-<strong>Ricerca:</strong> 
-<input type='text' name='q' value='%s' size="42"/>
-Risultati (min): 
-<input type='text' name='n' value='%s' size="5"/>
-<input type='submit' value='go!' />
-</form>
-</div>
-""" % (req, nres)
-
-
+print bottomform
 print outputtail
 
 
