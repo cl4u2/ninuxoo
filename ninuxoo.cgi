@@ -88,16 +88,28 @@ bottomform = """
 <form method='GET' action='/cgi-bin/ninuxoo.cgi'>
 <strong>Ricerca:</strong> 
 <input type='text' name='q' value='%s' size="42"/>
-Risultati (min): 
+Risultati (target): 
 <input type='text' name='n' value='%s' size="5"/>
 <input type='submit' value='go!' />
 </form>
 </div>
 """ % (req.replace("'", " "), nres)
 
+reqplus = req.replace("'", " ").replace(" ", "+")
+alternativesearchs = """
+<br/>
+<li> cerca \"%s\" 
+<a href='http://wiki.ninux.org/?action=fullsearch&context=180&fullsearch=Text&value=%s'>sul wiki</a> </li> 
+<li> cerca \"%s\" 
+<a href='http://www.mail-archive.com/search?q=%s&l=wireless%%40ml.ninux.org'>nell'archivio della mailing list</a> </li> 
+<li> cerca \"%s\" 
+<a href='http://blog.ninux.org/?s=%s'>sul blog</a> </li> 
+""" % (req, reqplus, req, reqplus, req, reqplus)
+
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
-		print "nessun risultato trovato per \"%s\"" % req
+		print "nessun risultato trovato..." 
+		print alternativesearchs
 		print "</ul>"
 		print bottomform
 		print outputtail
@@ -108,13 +120,13 @@ try:
 except:
 		pass
 
-if len(resp.labels) > 1:
-		i = 0
-		print "<ul class='resindex' id='rindex'>"
-		for label in resp.labels:
-				print "<li><a href='#res%d'>%s</a></li>" % (i, label)
-				i += 1
-		print "</ul>"
+i = 0
+print "<ul class='resindex' id='rindex'>"
+for label in resp.labels:
+		print "<li><a href='#res%d'>%s</a> (%d risultati)</li>" % (i, label, len(resp.resultlist[i]))
+		i += 1
+print alternativesearchs
+print "</ul>"
 
 for i in range(len(resp.resultlist)):
 		rlist = resp.resultlist[i]
