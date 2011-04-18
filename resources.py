@@ -10,13 +10,13 @@ class Resource():
 		protocol = ""
 		tags = set() 
 		filetype = ""
-		def __init__(self, uri="", server=""):
+		def __init__(self, uri="", server="", comments="", protocol="", path="", filetype=""):
 				self.uri = uri.strip()
-				self.comments = ""
 				self.server = server
-				self.path = ""
-				self.protocol = ""
-				self.filetype = "" 
+				self.comments = comments
+				self.path = path
+				self.protocol = protocol
+				self.filetype = filetype
 				self.tags = set()
 		def addTags(self, newtags):
 				if newtags.__class__ == list:
@@ -28,6 +28,8 @@ class Resource():
 				"populate the tags attribute from the uri and comments attributes"
 				# add the server's ip address
 				m = re.match("([a-z]{3,4})://([^/]*)/(.*)\.([a-zA-Z0-9]{2,4}$)", self.uri)
+				if not m:
+						m = re.match("([a-z]{3,4})://([^/]*)/(.*)", self.uri)
 				try: # protocol
 						self.protocol = m.group(1)
 						self.addTags(self.protocol)
@@ -61,7 +63,7 @@ class Resource():
 
 				# delete duplicates and the empty string
 				tmptags = list(set(tmptags))
-				stopwords = ['THE', 'IL', 'UN', 'UNA', 'GLI', 'LE', 'LO', 'A', 'E', 'I', 'O'] 
+				stopwords = ['THE', 'IL', 'UN', 'UNA', 'GLI', 'LE', 'LO', 'A', 'E', 'I', 'O', 'L'] 
 				tmptags = [e for e in tmptags if len(e) > 0 and not e.upper() in stopwords]
 				self.addTags(tmptags)
 
@@ -83,5 +85,9 @@ if __name__ == "__main__":
 		q = Query("ciao")
 		q.makeTags()
 		print q
+		r = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciaociao/", server="10.0.1.1")
+		r.makeTags()
+		print r
+		print r.protocol, "|", r.server, "|", r.path, "|", r.filetype
 
 
