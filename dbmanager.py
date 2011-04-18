@@ -5,6 +5,8 @@ import MySQLdb
 import threading
 from resources import *
 
+TIMEDIFF = 259200  #3 days
+
 class MysqlConnectionManager():
 		"given the right parameters connect to the database"
 		def __init__(self, dbhost, dbuser, dbpassword, database):
@@ -174,7 +176,7 @@ class QueryMaker(MysqlConnectionManager):
 
 				cursor.close()
 				return qr
-		def __orquery(self, cursor, tags, timediff=604800):
+		def __orquery(self, cursor, tags, timediff=TIMEDIFF):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -187,7 +189,7 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __andquery(self, cursor, tags, timediff=604800):
+		def __andquery(self, cursor, tags, timediff=TIMEDIFF):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -202,7 +204,7 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __tagstats(self, cursor, taglist, timediff=604800):
+		def __tagstats(self, cursor, taglist, timediff=TIMEDIFF):
 				tagdict = {}
 				if len(taglist) <= 0:
 						return tagdict
@@ -218,7 +220,7 @@ class QueryMaker(MysqlConnectionManager):
 				for row in r:
 						tagdict.update({row[0]: row[1]})
 				return tagdict
-		def __taglike(self, cursor, tag, limit=3, timediff=604800):
+		def __taglike(self, cursor, tag, limit=3, timediff=TIMEDIFF):
 				selectionstring = """
 				SELECT tag
 				FROM tags 
@@ -232,7 +234,7 @@ class QueryMaker(MysqlConnectionManager):
 		def getResourceStats(self):
 				cursor = self.conn.cursor()
 				return self.__resourcestats(cursor)
-		def __resourcestats(self, cursor, timediff=604800):
+		def __resourcestats(self, cursor, timediff=TIMEDIFF):
 				selectionstring = """
 				SELECT count(uri) 
 				FROM resources 
@@ -242,7 +244,7 @@ class QueryMaker(MysqlConnectionManager):
 		def getServerStats(self):
 				cursor = self.conn.cursor()
 				return self.__serverstats(cursor)
-		def __serverstats(self, cursor, timediff=604800):
+		def __serverstats(self, cursor, timediff=TIMEDIFF):
 				selectionstring = """
 				SELECT count(server) 
 				FROM (
