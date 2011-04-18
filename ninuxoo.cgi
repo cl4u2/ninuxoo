@@ -65,13 +65,13 @@ print """
 <input type='submit' value='go!' />
 </form>
 </div>
-""" %req
+""" % req.replace("'", " ")
 
 qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 
 if len(req) <= 0:
 		try:
-				print "<div class='resstats'> %d risorse indicizzate su %d server </div>" % (qm.getResourceStats(), qm.getServerStats())
+				print "<div class='resstats'> %d file indicizzati su %d server </div>" % (qm.getResourceStats(), qm.getServerStats())
 		except:
 				pass
 		print outputtail
@@ -93,7 +93,7 @@ Risultati (min):
 <input type='submit' value='go!' />
 </form>
 </div>
-""" % (req, nres)
+""" % (req.replace("'", " "), nres)
 
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
@@ -110,7 +110,7 @@ except:
 
 if len(resp.labels) > 1:
 		i = 0
-		print "<ul class='resindex'>"
+		print "<ul class='resindex' id='rindex'>"
 		for label in resp.labels:
 				print "<li><a href='#res%d'>%s</a></li>" % (i, label)
 				i += 1
@@ -124,6 +124,7 @@ for i in range(len(resp.resultlist)):
 				for resource in rlist:
 						print '<li class="result"><a href="%s">%s</a></li>' % (resource.uri, resource.uri)
 				print "</ul>"
+				print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
 
 
 print bottomform

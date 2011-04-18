@@ -82,6 +82,26 @@ a:hover {
 		padding-right: 10px;
 }
 
+.bottomtoplink {
+		text-align: right;
+}
+
+.bottomtoplink a {
+		color: #ffffff;
+		background-color: #222222;
+		font-weight: bold;
+		padding-left: 5px;
+		padding-right: 8px;
+		padding-bottom: 4px;
+		padding-bottom: 2px;
+}
+
+.uarr {
+		font-size: 150%;
+		text-decoration: none;
+		font-weight: bold;
+}
+
 #navmenu ul {
 		padding-top: 8px;
 		color: #ffffff;
