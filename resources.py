@@ -63,7 +63,7 @@ class Resource():
 
 				# delete duplicates and the empty string
 				tmptags = list(set(tmptags))
-				stopwords = ['THE', 'IL', 'UN', 'UNA', 'GLI', 'LE', 'LO', 'A', 'E', 'I', 'O', 'L'] 
+				stopwords = ['THE', 'IL', 'UN', 'UNA', 'GLI', 'LE', 'LO', 'A', 'E', 'I', 'O', 'L', 'OF'] 
 				tmptags = [e for e in tmptags if len(e) > 0 and not e.upper() in stopwords]
 				self.addTags(tmptags)
 
