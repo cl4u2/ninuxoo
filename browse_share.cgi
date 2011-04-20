@@ -101,7 +101,7 @@ if __name__ == '__main__':
 	    print "<ul class='files'>" 
             for r in rows:
                 tds = r.findAll("td") 
-                tags_to_strip = 'p', 'span'
+                tags_to_strip = 'p', 'span', 'a'
                 url = strip_tags(tds[1], tags_to_strip).contents[0]
                 name = strip_tags(tds[0], tags_to_strip).contents[0]
                 location = strip_tags(tds[2], tags_to_strip).contents[0]
@@ -119,6 +119,7 @@ if __name__ == '__main__':
 			entries = ctx.opendir (data['url']).getdents ()
 		except:
 			print "Errore"
+			entries = []
 		print "<h1>Contenuto di " + data['url'] + "</h1>"
 		print "<ul class='files'>"
 		for entry in entries:
