@@ -12,9 +12,27 @@ a:hover {
 
 .searchform{
 		text-align:center;
-		margin-bottom: 40px;
+		margin-bottom: 20px;
 		font-weight: bold;
 		font-family: monospace;
+}
+
+.searchform select{
+		font-family: monospace;
+		border-style: solid;
+		border-width: 2px;
+		border-color: black;
+		-moz-border-radius: 5px;
+		background-color: #ffffff;
+}
+
+.searchform input{
+		font-family: monospace;
+		border-style: solid;
+		border-width: 2px;
+		border-color: black;
+		-moz-border-radius: 5px;
+		background-color: #ffffff;
 }
 
 .searchform input[type=text]{
@@ -36,11 +54,12 @@ a:hover {
 }
 
 #bottomsearchform{
-		margin-top: 40px;
+		margin-top: 20px;
 }
 
 .resindex{
 		color: #ffffff;
+		margin-top: 20px;
 		padding-top: 20px;
 		background-color: #222222;
 		border-style: dashed;
@@ -157,7 +176,7 @@ li.resource
 }
 
 .resstats{
-		margin-top: -20px;
+		margin-top: -10px;
 		text-align:center;
 		font-weight: bold;
 		margin-bottom: 20px;

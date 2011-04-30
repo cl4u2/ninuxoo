@@ -6,6 +6,7 @@ cgitb.enable()
 import cgi
 import sys
 import time
+import os
 from dbmanager import QueryMaker
 from resources import Query
 
@@ -14,15 +15,29 @@ print
 
 fs = cgi.FieldStorage()
 try:
-		#rk = fs.keys()[0]
-		#req = fs.getfirst(rk, "")
 		req = fs['q'].value
 except:
 		req = ""
+
 try:
 		nres = int(fs['n'].value)
 except:
 		nres = 200
+
+useragent = os.environ.get("HTTP_USER_AGENT", "unknown").upper()
+#print useragent
+
+try:
+		schoice = fs['s'].value
+except:
+		if useragent.find('WIN') != -1:
+				schoice = "file"
+		elif useragent.find('SAFARI') != -1:
+				schoice = "smb"
+		elif useragent.find('KONQUEROR') != -1:
+				schoice = "smb"
+		else:
+				schoice = "file"
 
 
 outputhead = """
@@ -38,7 +53,7 @@ outputhead = """
 		<li><a href="/cgi-bin/browse_share.cgi">Files</a></li> 
 		<li><a href="/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org">VoIP</a></li> 
 		<li><a href="http://10.162.0.85/">WebMail</a></li> 
-		<li><a href="">Meteo</a></li> 
+		<li><a href="http://10.168.43.127/meteo/">Meteo</a></li> 
 	</ul> 
 </div> 
 <div class="logo">
@@ -84,12 +99,18 @@ resp = qm.query(q, nres)
 tend = time.time()
 
 bottomform = """
-<div class ="searchform" id="bottomsearchform">
-<form method='GET' action='/cgi-bin/ninuxoo.cgi'>
+<a name="bottomsearchform" class="restitle">ricerca avanzata</a>
+<div class="resindex">
+<form class="searchform" method='GET' action='/cgi-bin/ninuxoo.cgi'>
 <strong>Ricerca:</strong> 
 <input type='text' name='q' value='%s' size="42"/>
 Risultati (target): 
 <input type='text' name='n' value='%s' size="5"/>
+Schema SAMBA:
+<select name='s'>
+<option value='file'>file:///</option>
+<option value='smb'>smb://</option>
+</select>
 <input type='submit' value='go!' />
 </form>
 </div>
@@ -98,6 +119,7 @@ Risultati (target):
 reqplus = req.replace("'", " ").replace(" ", "+")
 alternativesearchs = """
 <br/>
+<li> <a href="#bottomsearchform">ricerca avanzata</a>
 <li> cerca \"%s\" 
 <a href='http://wiki.ninux.org/?action=fullsearch&context=180&fullsearch=Text&value=%s'>sul wiki</a> </li> 
 <li> cerca \"%s\" 
@@ -128,13 +150,19 @@ for label in resp.labels:
 print alternativesearchs
 print "</ul>"
 
+if schoice == "file":
+		smbschema = "file:///\\\\"
+else:
+		smbschema = "smb://"
+
 for i in range(len(resp.resultlist)):
 		rlist = resp.resultlist[i]
 		if len(rlist) > 0:
 				print "<a name='res%d' class='restitle'>%s</a>" %(i, resp.labels[i])
 				print "<ul class='results'>"
 				for resource in rlist:
-						print '<li class="result"><a href="%s">%s</a></li>' % (resource.uri, resource.uri)
+						fileuri = resource.uri.replace("smb://", smbschema, 1)
+						print '<li class="result"><a href="%s">%s</a></li>' % (fileuri, fileuri)
 				print "</ul>"
 				print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
 
