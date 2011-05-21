@@ -47,7 +47,7 @@ pre_html = '''
                 <li><a href="/cgi-bin/browse_share.cgi">Files</a></li> 
                 <li><a href="/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org">VoIP</a></li> 
                 <li><a href="http://10.162.0.85/">WebMail</a></li> 
-                <li><a href="">Meteo</a></li> 
+                <li><a href="http://10.168.43.127/meteo/">Meteo</a></li> 
         </ul> 
 </div> 
 <div class="logo">

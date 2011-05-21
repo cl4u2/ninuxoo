@@ -47,6 +47,12 @@ class ResourceSilos():
 				self.__reslock.notify()
 				self.__reslock.release()
 
+class FakeSilos():
+		def getRes(self):
+				print "getRes"
+		def addRes(self, resource):
+				print resource
+
 class ResourceStorer(MysqlConnectionManager, threading.Thread):
 		def __init__(self, dbhost, dbuser, dbpassword, database, silos):
 				MysqlConnectionManager.__init__(self, dbhost, dbuser, dbpassword, database)

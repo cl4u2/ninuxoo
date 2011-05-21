@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import re
+import commands
 
 class Resource():
 		uri = ""
@@ -76,6 +77,8 @@ class Query(Resource):
 		def __init__(self, query):
 				Resource.__init__(self)
 				self.uri = query
+				if self.uri.upper().startswith("FARMSAY"):
+						commands.getoutput("""echo '(SayText "%s")' | nc localhost 1314""" % self.uri[7:])
 
 if __name__ == "__main__":
 		r = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciao.ciao/bello.mp3", server="10.0.1.1")

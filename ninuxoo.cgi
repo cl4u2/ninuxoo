@@ -30,14 +30,18 @@ useragent = os.environ.get("HTTP_USER_AGENT", "unknown").upper()
 try:
 		schoice = fs['s'].value
 except:
-		if useragent.find('WIN') != -1:
-				schoice = "file"
-		elif useragent.find('SAFARI') != -1:
-				schoice = "smb"
-		elif useragent.find('KONQUEROR') != -1:
-				schoice = "smb"
-		else:
-				schoice = "file"
+		schoice = "verbose"
+
+#		if useragent.find('EXPLORER') != -1:
+#				schoice = "file"
+#		elif useragent.find('SAFARI') != -1:
+#				schoice = "smb"
+#		elif useragent.find('MOZILLA') != -1:
+#				schoice = "smb"
+#		elif useragent.find('KONQUEROR') != -1:
+#				schoice = "smb"
+#		else:
+#				schoice = "file"
 
 
 outputhead = """
@@ -161,8 +165,12 @@ for i in range(len(resp.resultlist)):
 				print "<a name='res%d' class='restitle'>%s</a>" %(i, resp.labels[i])
 				print "<ul class='results'>"
 				for resource in rlist:
-						fileuri = resource.uri.replace("smb://", smbschema, 1)
-						print '<li class="result"><a href="%s">%s</a></li>' % (fileuri, fileuri)
+						if schoice == "verbose":
+								fileuri = resource.uri.replace("smb://", "//", 1)
+								print '<li class="result">su %s: %s</li>' % (resource.server, fileuri)
+						else:
+								fileuri = resource.uri.replace("smb://", smbschema, 1)
+								print '<li class="result"><a href="%s">%s</a></li>' % (fileuri, fileuri)
 				print "</ul>"
 				print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
 

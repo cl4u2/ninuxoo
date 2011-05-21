@@ -31,7 +31,7 @@ class FtpDancer(threading.Thread):
 				if depth > 10: #maximum recursion depth
 						return 
 
-				m = re.search(".*://[^/]*(.*)", ftpurl)
+				m = re.search(".*://[^/]*(/.*)", ftpurl)
 				if m and len(m.group(1)) > 0: # the rest of the uri
 						currentdir = m.group(1)
 				else:
@@ -51,10 +51,10 @@ class FtpDancer(threading.Thread):
 								r = Resource()
 								r.uri = ftpurl
 								r.server = self.target
-								try:
-										self.silos.addRes(r)
-								except:
-										self.dance(ftpurl + "/" + e.name, depth+1)
+#								try:
+#										self.silos.addRes(r)
+#								except:
+								self.dance(ftpurl + "/" + e.name, depth+1)
 						else:
 								r = Resource()
 								r.uri = ftpurl + "/" + e.name
@@ -81,7 +81,11 @@ class FtpDancer(threading.Thread):
 						print "results for %s gathered" % self.target
 				except:
 						print "%s error" % self.target
+						raise
 
 if __name__ == "__main__":
-		s = FtpDancer("10.168.177.179", None)
+		fsilos = FakeSilos()
+		s = FtpDancer("10.168.177.179", fsilos)
+#		s = FtpDancer("217.133.178.217", fsilos)
 		s.run()
+
