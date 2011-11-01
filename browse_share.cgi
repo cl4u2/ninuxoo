@@ -9,7 +9,7 @@ import smbc
 
 sys.stderr = sys.stdout
 
-smbc_type = {'share':3, 'folder':7, 'file':8}
+SMBC_TYPE = {'share':3, 'folder':7, 'file':8}
 
 
 NAS_LIST = 'Ninux_NAS'
@@ -39,7 +39,7 @@ def pagefetch(thepage):
     data = u.read()
     return data
 
-pre_html = '''
+pre_html = u'''
 <html>
 <head>
 <title>ninuXoo! - VoIP</title>
@@ -52,7 +52,8 @@ pre_html = '''
                 <li><a href="/cgi-bin/browse_share.cgi">Files</a></li> 
                 <li><a href="/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org">VoIP</a></li> 
                 <li><a href="http://10.162.0.85/">WebMail</a></li> 
-                <li><a href="http://10.168.43.127/meteo/">Meteo</a></li> 
+                <li><a href="http://blog.ninux.org">Blog</a></li> 
+                <li><a href="http://wiki.ninux.org">Wiki</a></li> 
         </ul> 
 </div> 
 <div class="logo">
@@ -74,69 +75,75 @@ post_html = '''
 
 
 def strip_tags(element, tags_to_strip) :
-   
    for tag in element.findAll(True):
       if tag.name in tags_to_strip:
-        for i, x in enumerate(tag.parent.contents):
-          if x == tag: break
-          else:
-            continue
-        for r in reversed(tag.contents):
-          tag.parent.insert(i, r)
-        tag.extract()
+         for i, x in enumerate(tag.parent.contents):
+            if x == tag: 
+               break
+            else:
+               continue
+         for r in reversed(tag.contents):
+            tag.parent.insert(i, r)
+         tag.extract()
    return element
-	
+
 
 if __name__ == '__main__':
+    print "Content-type: text/html"         # this is the header to the server
+    print                                   # so is this blank line
+    outhtml = pre_html
     form = cgi.FieldStorage()           
     data = getform(['url', 'download'],form)
     if not data['url'] :
-	    # show the NAS list from the wiki 
-	    data = pagefetch('http://wiki.ninux.org/' + NAS_LIST )
-	    print "Content-type: text/html"         # this is the header to the server
-	    print                                   # so is this blank line
-	    print pre_html
-            soup = BeautifulSoup.BeautifulSoup(data)
-            rows = soup.findAll("tr")
-	    print "<ul class='files'>" 
-            for r in rows:
-                tds = r.findAll("td") 
-                tags_to_strip = 'p', 'span', 'a'
-                url = strip_tags(tds[1], tags_to_strip).contents[0]
-                name = strip_tags(tds[0], tags_to_strip).contents[0]
-                location = strip_tags(tds[2], tags_to_strip).contents[0]
-                print "<li class='resource'><a href='/cgi-bin/browse_share.cgi?url=" + str(url).strip() + "'>" + str(name).strip() + "</a> (" + str(location).strip() + ")</li>"
-	    print "</ul>"
-            print post_html
+        # show the NAS list from the wiki 
+        data = pagefetch('http://wiki.ninux.org/' + NAS_LIST )
+        soup = BeautifulSoup.BeautifulSoup(data)
+        rows = soup.findAll("tr")
+        outhtml += "<ul class='files'>" 
+        for r in rows:
+            tds = r.findAll("td") 
+            tags_to_strip = 'p', 'span', 'a'
+            name = strip_tags(tds[0], tags_to_strip).contents[0]
+            url = strip_tags(tds[1], tags_to_strip).contents[0]
+            location = strip_tags(tds[2], tags_to_strip).contents[0]
+            outhtml += u"<li class='resource'><a href='/cgi-bin/browse_share.cgi?url=" + str(url).strip() + "'>" + str(name).strip() + "</a> (" + str(location).strip() + ")</li>"
+        outhtml += "</ul>"
+        outhtml += post_html
     elif data['url']:
-        if data['url'].find('smb://') >= 0:
-	        ctx = smbc.Context ()
-                # e allora samba
-		print "Content-type: text/html"         # this is the header to the server
-		print                                   # so is this blank line
-		print pre_html
-		try:
-			entries = ctx.opendir (data['url']).getdents ()
-		except:
-			print "Errore"
-			entries = []
-		print "<h1>Contenuto di " + data['url'] + "</h1>"
-		print "<ul class='files'>"
-		for entry in entries:
-	   	    entry_url = data['url']
-		    if entry.name == ".":
-			pass
-		    elif entry.name == "..":
-		        entry_url = ('/').join(  entry_url.split('/')[:-1] )
-			print "<li><a href='/cgi-bin/browse_share.cgi?url="+ entry_url + "'>" + entry.name + "</a></li>"
-		    else:
-			if entry.smbc_type == smbc_type['file']:
-                           download_from_smb = "<a href='" + entry_url + "/" + entry.name + "'>" + entry.name + "</a>" 
-			   print "<li class='download'>" + download_from_smb + "</li>"
-		        else:
-			   print "<li class='browse'><a href='/cgi-bin/browse_share.cgi?url="+ entry_url + "/" + entry.name + "'>" + entry.name + "</a></li>"
-		print "</ul>"
-		print post_html
+         if data['url'].find('smb://') >= 0:
+             ctx = smbc.Context()
+         # e allora samba
+             try:
+                 entries = ctx.opendir (data['url']).getdents ()
+             except:
+                 outhtml += u"Error opening " + data['url']
+                 entries = []
+             outhtml += u"<h1>Contenuto di " + data['url'] + "</h1>"
+             outhtml += "<ul class='files'>"
+             for entry in entries:
+                 try:
+                     entry_url = data['url'].encode('ascii', errors='xmlcharrefreplace')
+                     entry_name = entry.name.encode('ascii', errors='xmlcharrefreplace')
+                     entry_ty = entry.smbc_type
+                 except UnicodeEncodeError:
+                     continue
+                 if entry_name == ".":
+                     pass
+                 elif entry_name == "..":
+                     entry_url = ('/').join(  entry_url.split('/')[:-1] )
+                     outhtml += u"<li><a href='/cgi-bin/browse_share.cgi?url=%r'>..</a></li>" % (entry_url)
+                 else:
+                     smbctype = int(entry_ty)
+                     if smbctype == SMBC_TYPE['file']:
+                         download_from_smb = "<a href='%s/%s'>%s</a>" % (entry_url, entry_name, entry_name)
+                         outhtml += u"<li class='download'>" + download_from_smb + "</li>"
+                     else:
+                         outhtml += "<li class='browse'><a href='/cgi-bin/browse_share.cgi?url=%s/%s'>%s</a></li>" % (entry_url, entry_name, entry_name)
+             outhtml += "</ul>"
+             outhtml += post_html
 
+    print outhtml
+
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 
