@@ -1,8 +1,8 @@
 #!/bin/bash
 
-while /bin/true; do 
-		./getprefixesfromroutingtable.sh > IpPrefixes.txt && python crawler.py; 
-		echo "---------";  
-		sleep 3600; 
-done
+NINUXOO_DIR=/opt/ninuxoo/ninuu
+
+cd $NINUXOO_DIR
+${NINUXOO_DIR}/getprefixesfromroutingtable.sh > ${NINUXOO_DIR}/IpPrefixes.txt && python crawler.py; 
+echo $(date) "---------";  
 
