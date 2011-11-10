@@ -24,13 +24,13 @@ for ipline in ipaddressesfile:
 				ip = ipline.strip() + str(lastbyte)
 				print ip
 				sd = SambaDancer(ip, urisilos)
-				fd = FtpDancer(ip, urisilos)
+				#fd = FtpDancer(ip, urisilos)
 				sd.daemon = True
-				fd.daemon = True
+				#fd.daemon = True
 				sd.start()
-				fd.start()
+				#fd.start()
 				dancers.append(sd)
-				dancers.append(fd)
+				#dancers.append(fd)
 
 for d in dancers:
 		d.join()
