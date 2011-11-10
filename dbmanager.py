@@ -77,11 +77,11 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 						filetype
 				) VALUES (
 				'%s', '%s', '%s', '%s', '%s')""" % (
-						resource.uri.strip().replace("'","\\'"),
-						resource.server.strip().replace("'","\\'"),
-						resource.protocol.strip().replace("'","\\'"),
-						resource.path.strip().replace("'","\\'"),
-						resource.filetype.strip().replace("'","\\'")
+						resource.uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
+						resource.server.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
+						resource.protocol.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
+						resource.path.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
+						resource.filetype.strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				)
 				cursor.execute(insertionstring)
 		def __insertTags(self, cursor, uri, tag):
@@ -91,8 +91,8 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 						tag
 				) VALUES (
 				'%s', '%s')""" % (
-						uri.strip().replace("'","\\'"),
-						tag
+						uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
+						tag.encode('utf-8', errors='ignore')
 				)
 				cursor.execute(insertionstring)
 		def run(self):

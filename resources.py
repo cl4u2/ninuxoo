@@ -71,7 +71,15 @@ class Resource():
 		def __repr__(self):
 				return self.uri + " {" + self.comments + "} " + str(list(self.tags))
 		def __str__(self):
-				return repr(self)
+				try:
+						r = repr(self)
+				except UnicodeEncodeError:
+						try:
+								r = repr(self).encode('utf-8', 'ignore')
+						except UnicodeEncodeError:
+								r = ""
+				return r
+
 
 class Query(Resource):
 		def __init__(self, query):
