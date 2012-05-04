@@ -125,7 +125,7 @@ Schema SAMBA:
 reqplus = req.replace("'", " ").replace(" ", "+")
 alternativesearchs = """
 <br/>
-<li> <a href="#bottomsearchform">ricerca avanzata</a>
+oppure:
 <li> cerca \"%s\" 
 <a href='http://wiki.ninux.org/?action=fullsearch&context=180&fullsearch=Text&value=%s'>sul wiki</a> </li> 
 <li> cerca \"%s\" 
@@ -136,7 +136,9 @@ alternativesearchs = """
 
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
-		print "nessun risultato trovato..." 
+		print "NESSUN RISULTATO TROVATO" 
+		print "</ul>"
+		print "<ul class='resindex'>"
 		print alternativesearchs
 		print "</ul>"
 		print bottomform
