@@ -50,6 +50,8 @@ outputhead = """
 <title>ninuXoo!</title>
 </head>
 <link rel="stylesheet" href="/ninuxoo/ninuxoo.css" type="text/css" />
+<script src="/ninuxoo/js/jquery-1.7.2.min.js"></script>
+<script src="/ninuxoo/js/results.js"></script>
 <body>
 <div id="navmenu"> 
 	<ul> 
@@ -152,9 +154,25 @@ except:
 
 i = 0
 print "<ul class='resindex' id='rindex'>"
-for label in resp.labels:
-		print "<li><a href='#res%d'>%s</a> (%d risultati)</li>" % (i, label, len(resp.resultlist[i]))
+
+exactresults = resp.getExactResults()
+if len(exactresults) == 0:
+		print "<strong>NESSUN RISULTATO TROVATO</strong><br/>"
+else:
+		for qr in exactresults:
+				label = qr.label
+				print "<li class='exactresult'><a href='#res%d'>%s</a> (%d risultati)</li>" % (i, label, len(resp.resultlistlist[i]))
+				i += 1
+
+otherresults = resp.getOtherResults()
+if len(otherresults) > 0:
+		print "<br/>ma forse cercavi...<br/>"
+
+for qr in otherresults:
+		label = qr.label
+		print "<li class='otherresult'><a href='#res%d'>%s</a> (%d risultati)</li>" % (i, label, len(resp.resultlistlist[i]))
 		i += 1
+
 print alternativesearchs
 print "</ul>"
 
@@ -163,12 +181,18 @@ if schoice == "file":
 else:
 		smbschema = "smb://"
 
-for i in range(len(resp.resultlist)):
-		rlist = resp.resultlist[i]
+for i in range(len(resp.resultlistlist)):
+		rlist = resp.resultlistlist[i]
 		if len(rlist) > 0:
-				print "<a name='res%d' class='restitle'>%s</a>" %(i, resp.labels[i])
-				print "<ul class='results'>"
-				for resource in rlist:
+				if rlist.exactresult:
+						csstitleclass = 'exactrestitle'
+						cssclass = 'exactresults'
+				else:
+						csstitleclass = 'otherrestitle'
+						cssclass = 'otherresults'
+				print "<a name='res%d' class='%s'>%s</a>" %(i, csstitleclass, resp.getLabels()[i])
+				print "<ul class='%s'>" % cssclass
+				for resource in rlist.resultlist:
 						if schoice == "verbose":
 								fileuri = resource.uri.replace("smb://", "//", 1)
 								print '<li class="result">su %s: %s</li>' % (resource.server, fileuri)

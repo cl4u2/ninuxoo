@@ -100,21 +100,33 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 						r = self.silos.getRes()
 						self.store(r)
 
+class QueryResult1:
+		def __init__(self, resultlist, exactresult, label):
+				self.resultlist = resultlist
+				self.exactresult = exactresult
+				self.label = label
+		def __len__(self):
+				return len(self.resultlist)
 
 class QueryResultS():
 		def __init__(self):
-				self.resultlist = list()
-				self.labels = list()
+				self.resultlistlist = list()
 		def getLen(self):
-				return sum([len(li) for li in self.resultlist])
-		def addResultList(self, reslist, taglist, boolword="AND" ):
+				return sum([len(li.resultlist) for li in self.resultlistlist])
+		def addResultList(self, reslist, taglist, boolword="AND", exactresult=False):
 				if not reslist or not taglist:
 						return
-				self.resultlist.append(reslist)
 				label = taglist[0] 
 				for tag in taglist[1:]:
 						label += " %s %s" % (boolword, tag)
-				self.labels.append(label)
+				qr1 = QueryResult1(reslist, exactresult, label)
+				self.resultlistlist.append(qr1)
+		def getLabels(self):
+				return [li.label for li in self.resultlistlist]
+		def getExactResults(self):
+				return [li for li in self.resultlistlist if li.exactresult]
+		def getOtherResults(self):
+				return [li for li in self.resultlistlist if not li.exactresult]
 
 
 class QueryMaker(MysqlConnectionManager):
@@ -138,12 +150,12 @@ class QueryMaker(MysqlConnectionManager):
 								else:
 										badtags.append(tag)
 				if len(goodtags) >= 2:
-						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND")
+						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND", True)
 				usedtags = []
 				if qr.getLen() < targetresults:
 						#qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
 						for tag in goodtags:
-								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", True)
 						usedtags += goodtags
 				if len(badtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(badtags) 
@@ -153,7 +165,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(badtags)).difference(set(usedtags)))
 						for tag in liketags:
 								if qr.getLen() < targetresults:
-										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", False)
 										usedtags.append(tag)
 				if len(goodtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(goodtags) 
@@ -163,7 +175,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
 						for tag in liketags:
 								if qr.getLen() < targetresults:
-										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", False)
 										usedtags.append(tag)
 				for j in range(1,4):
 						if qr.getLen() < targetresults:
@@ -177,7 +189,7 @@ class QueryMaker(MysqlConnectionManager):
 								liketags = list(set(liketags).difference(set(tmptags)).difference(set(usedtags)))
 								for tag in liketags:
 										if qr.getLen() < targetresults:
-												qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR")
+												qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", False)
 										usedtags.append(tag)
 
 				cursor.close()
