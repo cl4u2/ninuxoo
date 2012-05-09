@@ -100,13 +100,18 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 						r = self.silos.getRes()
 						self.store(r)
 
-class QueryResult1:
+class QueryResult1():
 		def __init__(self, resultlist, exactresult, label):
 				self.resultlist = resultlist
 				self.exactresult = exactresult
 				self.label = label
 		def __len__(self):
 				return len(self.resultlist)
+		def getTrie(self):
+				trie = ResourceTrie()
+				for r in self.resultlist:
+						trie.insert(r)
+				return trie
 
 class QueryResultS():
 		def __init__(self):

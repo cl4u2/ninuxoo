@@ -81,6 +81,7 @@ a:hover {
 		border-color: black;
 		-moz-border-radius: 5px;
 		padding-bottom: 20px;
+		padding-left: 0px;
 }
 
 .exactresults{
@@ -91,6 +92,7 @@ a:hover {
 		border-color: black;
 		-moz-border-radius: 5px;
 		padding-bottom: 20px;
+		padding-left: 0px;
 }
 
 .result{
@@ -210,5 +212,10 @@ li.resource
 
 .otherresult
 {
+}
+
+.label {
+		list-style-type: square;
+		color: black;
 }
 

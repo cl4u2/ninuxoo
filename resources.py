@@ -68,6 +68,18 @@ class Resource():
 				tmptags = [e for e in tmptags if len(e) > 0 and not e.upper() in stopwords]
 				self.addTags(tmptags)
 
+		def tokenize(self):
+				return [tok for tok in self.uri.split('/') if len(tok) > 0]
+
+		def getFilename(self):
+				splituri = self.uri.split('/')
+				res = ""
+				try:
+						res = splituri[-1]
+				except IndexError:
+						res = self.uri
+				return res
+
 		def __repr__(self):
 				return self.uri + " {" + self.comments + "} " + str(list(self.tags))
 		def __str__(self):
@@ -88,6 +100,47 @@ class Query(Resource):
 				if self.uri.upper().startswith("FARMSAY"):
 						commands.getoutput("""echo '(SayText "%s")' | nc localhost 1314""" % self.uri[7:])
 
+
+class ResourceTrie():
+		def __init__(self, label=""):
+				self.label = label
+				self.children = dict()
+				self.resources = list()
+				self.nres = 0
+
+		def insert(self, resource):
+				self.__insert(resource, resource.tokenize())
+
+		def __insert(self, resource, tokens=None):
+				if len(tokens) <= 1:
+						self.resources.append(resource)
+						self.nres += 1
+						return 1
+				t0 = tokens[0]
+				if not self.children.has_key(t0):
+						newtrie = ResourceTrie(t0)
+						self.children.update({t0: newtrie})
+				res = self.children[t0].__insert(resource, tokens[1:])
+				self.nres += res
+				return res
+
+		def fancyrepr(self, spacen=0):
+				spaces = "  " * spacen
+				spacesr = "  " * (spacen+1)
+				res = ""
+				res += spaces + "|-" + self.label + "\n"
+				for resource in self.resources: 
+						res += spacesr + "|-* " + resource.uri + "\n"
+				for child in self.children.values():
+						res += child.fancyrepr(spacen + 1) + "\n"
+				return res
+
+		def __str__(self):
+				return self.fancyrepr()
+
+
+
+
 if __name__ == "__main__":
 		r = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciao.ciao/bello.mp3", server="10.0.1.1")
 		r.makeTags()
@@ -96,9 +149,15 @@ if __name__ == "__main__":
 		q = Query("ciao")
 		q.makeTags()
 		print q
-		r = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciaociao/", server="10.0.1.1")
-		r.makeTags()
-		print r
-		print r.protocol, "|", r.server, "|", r.path, "|", r.filetype
+		r1 = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciaociao/", server="10.0.1.1")
+		r1.makeTags()
+		print r1
+		print r1.protocol, "|", r1.server, "|", r1.path, "|", r1.filetype
+		print "-----"
+		rt = ResourceTrie()
+		rt.insert(r)
+		rt.insert(r1)
+		print "-----"
+		print str(rt)
 
 

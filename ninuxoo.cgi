@@ -181,6 +181,47 @@ if schoice == "file":
 else:
 		smbschema = "smb://"
 
+def ultrie(resourcetrie, resuri=""):
+		res = res1 = ""
+		newli = False
+		fork = False
+		for child in resourcetrie.children.values():
+				if child.nres < resourcetrie.nres:
+						fork = True
+		if fork and (not resourcetrie.label.startswith('smb:') and not resourcetrie.label.startswith('ftp:')):
+				res1 += "<li class='label'>" 
+				res1 += resuri + "/"
+				res1 += "</li>\n" 
+				newli = True
+		for child in resourcetrie.children.values():
+				if not child.label.startswith('smb:') and not child.label.startswith('ftp:'):
+						if child.nres < resourcetrie.nres:
+								res1 += ultrie(child, "/" + child.label)
+						else:
+								res1 += ultrie(child, resuri + "/" + child.label) 
+				else:
+						res1 += ultrie(child, "//")
+		if len(resourcetrie.resources):
+				res1 += "<li class='label'>" 
+				res1 += resuri 
+				res1 += "/ "
+				res1 += "</li>\n" 
+				newli = True
+				resuri = ""
+				res1 += "<ul>\n" 
+				for resource in resourcetrie.resources:
+						if schoice == "verbose":
+								res1 += '<li class="result">%s</li>\n' % resource.getFilename()
+						else:
+								fileuri = resource.uri.replace("smb://", smbschema, 1)
+								res1 += '<li class="result"><a href="%s">%s</a></li>\n' % (fileuri, resource.getFilename())
+				res1 += "</ul>\n" 
+		if newli:
+				res = "<ul>" + res1 + "</ul>\n"
+		else:
+				res = res1
+		return res
+
 for i in range(len(resp.resultlistlist)):
 		rlist = resp.resultlistlist[i]
 		if len(rlist) > 0:
@@ -192,13 +233,8 @@ for i in range(len(resp.resultlistlist)):
 						cssclass = 'otherresults'
 				print "<a name='res%d' class='%s'>%s</a>" %(i, csstitleclass, resp.getLabels()[i])
 				print "<ul class='%s'>" % cssclass
-				for resource in rlist.resultlist:
-						if schoice == "verbose":
-								fileuri = resource.uri.replace("smb://", "//", 1)
-								print '<li class="result">su %s: %s</li>' % (resource.server, fileuri)
-						else:
-								fileuri = resource.uri.replace("smb://", smbschema, 1)
-								print '<li class="result"><a href="%s">%s</a></li>' % (fileuri, fileuri)
+				resourcetrie = rlist.getTrie()
+				print ultrie(resourcetrie)
 				print "</ul>"
 				print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
 
