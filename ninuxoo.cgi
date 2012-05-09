@@ -50,6 +50,7 @@ outputhead = """
 <title>ninuXoo!</title>
 </head>
 <link rel="stylesheet" href="/ninuxoo/ninuxoo.css" type="text/css" />
+<link rel="search" type="application/opensearchdescription+xml" title="ninuxoo" href="/ninuxoo/osd.xml" />
 <script src="/ninuxoo/js/jquery-1.7.2.min.js"></script>
 <script src="/ninuxoo/js/results.js"></script>
 <body>
