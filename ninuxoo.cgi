@@ -139,7 +139,7 @@ oppure:
 
 if resp.getLen() <= 0:
 		print "<ul class='resindex'>"
-		print "NESSUN RISULTATO TROVATO" 
+		print "NESSUN RISULTATO TROVATO PER \"%s\"" % req 
 		print "</ul>"
 		print "<ul class='resindex'>"
 		print alternativesearchs
@@ -158,7 +158,7 @@ print "<ul class='resindex' id='rindex'>"
 
 exactresults = resp.getExactResults()
 if len(exactresults) == 0:
-		print "<strong>NESSUN RISULTATO TROVATO</strong><br/>"
+		print "<strong>NESSUN RISULTATO TROVATO PER \"%s\"</strong><br/>" % req
 else:
 		for qr in exactresults:
 				label = qr.label
@@ -167,7 +167,7 @@ else:
 
 otherresults = resp.getOtherResults()
 if len(otherresults) > 0:
-		print "<br/>ma forse cercavi...<br/>"
+		print "<br/>ma forse ti possono interessare:<br/>"
 
 for qr in otherresults:
 		label = qr.label
