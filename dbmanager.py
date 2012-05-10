@@ -68,20 +68,35 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				self.conn.commit()
 				cursor.close()
 		def __insertRes(self, cursor, resource):
+				sserver = resource.server.strip().replace("'","\\'").encode('utf-8', errors='ignore')
+				sprotocol =	resource.protocol.strip().replace("'","\\'").encode('utf-8', errors='ignore')
+				spath = resource.path.strip().replace("'","\\'").encode('utf-8', errors='ignore')
+				sfiletype = resource.filetype.strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				insertionstring = """
-				REPLACE INTO resources (
+				INSERT INTO resources (
 						uri, 
 						server,
 						protocol,
 						path,
-						filetype
+						filetype,
+						firstseen
 				) VALUES (
-				'%s', '%s', '%s', '%s', '%s')""" % (
+				'%s', '%s', '%s', '%s', '%s', NOW())
+				ON DUPLICATE KEY UPDATE 
+					server = '%s',
+					protocol = '%s',
+					path = '%s',
+					filetype = '%s'
+				""" % (
 						resource.uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
-						resource.server.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
-						resource.protocol.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
-						resource.path.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
-						resource.filetype.strip().replace("'","\\'").encode('utf-8', errors='ignore')
+						sserver,
+						sprotocol,
+						spath,
+						sfiletype,
+						sserver,
+						sprotocol,
+						spath,
+						sfiletype,
 				)
 				cursor.execute(insertionstring)
 		def __insertTags(self, cursor, uri, tag):
@@ -276,16 +291,33 @@ class QueryMaker(MysqlConnectionManager):
 					GROUP by server) AS s """ % timediff
 				cursor.execute(selectionstring)
 				return cursor.fetchone()[0]
+		def getNewFiles(self, n=50):
+				qr = QueryResultS()
+				cursor = self.conn.cursor()
+				qr.addResultList(self.__getNewFiles(cursor, n), ['NOVITA\''], True)
+				return qr
+		def __getNewFiles(self, cursor, n):
+				selectionstring = """
+				SELECT resources.uri, resources.server, resources.filetype
+				FROM resources
+				ORDER BY resources.firstseen DESC
+				LIMIT %d
+				""" % n
+				cursor.execute(selectionstring)
+				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
+				return r
 
 
 if __name__ == "__main__":
 		rs = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu')
 		r = Resource(uri="test://just/a.test/right_now", comments="films", filetype=Filetype.VIDEO)
-		#rs.store(r)
+		rs.store(r)
 		qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
-		q = Query("ninux etnica")
+		q = Query("right now")
 		r = qm.query(q)
 		print r
+		r = Resource(uri="test://just/a.test/right_now", comments="films", filetype=Filetype.VIDEO)
+		rs.store(r)
 
 
 

@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `path` varchar(650),
   `protocol` varchar(10),
   `filetype` varchar(20),
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, --last seen
+  `firstseen` timestamp NOT NULL DEFAULT 0, --first seen
   PRIMARY KEY (`uri`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
