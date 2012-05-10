@@ -155,12 +155,11 @@ class QueryMaker(MysqlConnectionManager):
 								else:
 										badtags.append(tag)
 				if len(goodtags) >= 2:
-						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "AND", True)
+						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "+", True)
 				usedtags = []
 				if qr.getLen() < targetresults:
-						#qr.addResultList(self.__orquery(cursor, goodtags), goodtags, "OR")
 						for tag in goodtags:
-								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", True)
+								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "/", len(goodtags) == 1)
 						usedtags += goodtags
 				if len(badtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(badtags) 
