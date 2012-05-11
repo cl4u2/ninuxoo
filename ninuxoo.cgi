@@ -168,7 +168,7 @@ else:
 
 otherresults = resp.getOtherResults()
 if len(otherresults) > 0:
-		print "<br/>ma forse ti possono interessare:<br/>"
+		print "<br/>altri risultati trovati:<br/>"
 
 for qr in otherresults:
 		label = qr.label
@@ -206,7 +206,7 @@ def ultrie(resourcetrie, resuri=""):
 				res1 += "<ul>\n" 
 				for resource in resourcetrie.resources:
 						if schoice == "verbose":
-								res1 += '<li class="result">%s [%s]</li>\n' % (resource.getFilename(), resource.firstseen)
+								res1 += '<li class="result">%s</li>\n' % resource.getFilename()
 						else:
 								fileuri = resource.uri.replace("smb://", smbschema, 1)
 								res1 += '<li class="result"><a href="%s">%s</a></li>\n' % (fileuri, resource.getFilename())
@@ -224,6 +224,22 @@ def ultrie(resourcetrie, resuri=""):
 		else:
 				res = res1
 		return res
+
+for i in range(len(resp.resultlistlist)):
+	   rlist = resp.resultlistlist[i]
+	   if len(rlist) > 0:
+			   if rlist.exactresult:
+					   csstitleclass = 'exactrestitle'
+					   cssclass = 'exactresults'
+			   else:
+					   csstitleclass = 'otherrestitle'
+					   cssclass = 'otherresults'
+			   print "<a name='res%d' class='%s'>%s</a>" %(i, csstitleclass, resp.getLabels()[i])
+			   print "<ul class='%s'>" % cssclass
+			   resourcetrie = rlist.getTrie()
+			   print ultrie(resourcetrie)
+			   print "</ul>"
+			   print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
 
 
 print bottomform
