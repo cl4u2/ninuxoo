@@ -11,7 +11,8 @@ class Resource():
 		protocol = ""
 		tags = set() 
 		filetype = ""
-		def __init__(self, uri="", server="", comments="", protocol="", path="", filetype=""):
+		firstseen = ""
+		def __init__(self, uri="", server="", comments="", protocol="", path="", filetype="", firstseen=""):
 				self.uri = uri.strip()
 				self.server = server
 				self.comments = comments
@@ -19,6 +20,7 @@ class Resource():
 				self.protocol = protocol
 				self.filetype = filetype
 				self.tags = set()
+				self.firstseen = firstseen
 		def addTags(self, newtags):
 				if newtags.__class__ == list:
 						for tag in newtags:

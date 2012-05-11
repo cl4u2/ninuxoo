@@ -49,6 +49,7 @@ pre_html = u'''
 <div id="navmenu"> 
         <ul> 
                 <li><a href="/">Cerca</a></li> 
+                <li><a href="/cgi-bin/new_files.cgi">Novit&agrave;</a></li> 
                 <li><a href="/cgi-bin/browse_share.cgi">Files</a></li> 
                 <li><a href="/cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org">VoIP</a></li> 
 		<li><a href="http://10.168.177.178:8888/">JukeBox</a></li> 

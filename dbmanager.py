@@ -294,17 +294,18 @@ class QueryMaker(MysqlConnectionManager):
 		def getNewFiles(self, n=50):
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
-				qr.addResultList(self.__getNewFiles(cursor, n), ['NOVITA\''], True)
+				qr.addResultList(self.__getNewFiles(cursor, n), ['NOVIT&Agrave;'], True)
 				return qr
 		def __getNewFiles(self, cursor, n):
 				selectionstring = """
-				SELECT resources.uri, resources.server, resources.filetype
+				SELECT resources.uri, resources.server, resources.filetype, resources.firstseen
 				FROM resources
+				WHERE resources.firstseen != 0
 				ORDER BY resources.firstseen DESC
 				LIMIT %d
 				""" % n
 				cursor.execute(selectionstring)
-				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
+				r = [Resource(uri=e[0], server=e[1], filetype=e[2], firstseen=e[3]) for e in cursor.fetchall()]
 				return r
 
 
