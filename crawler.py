@@ -35,6 +35,9 @@ for ipline in ipaddressesfile:
 for d in dancers:
 		d.join()
 
+resourcestorer.allFinished()
+resourcestorer.join()
+
 ipaddressesfile.close()
 sys.exit(0)
 
