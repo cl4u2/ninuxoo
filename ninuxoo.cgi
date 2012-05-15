@@ -226,20 +226,21 @@ def ultrie(resourcetrie, resuri=""):
 		return res
 
 for i in range(len(resp.resultlistlist)):
-	   rlist = resp.resultlistlist[i]
-	   if len(rlist) > 0:
-			   if rlist.exactresult:
-					   csstitleclass = 'exactrestitle'
-					   cssclass = 'exactresults'
-			   else:
-					   csstitleclass = 'otherrestitle'
-					   cssclass = 'otherresults'
-			   print "<a name='res%d' class='%s'>%s</a>" %(i, csstitleclass, resp.getLabels()[i])
-			   print "<ul class='%s'>" % cssclass
-			   resourcetrie = rlist.getTrie()
-			   print ultrie(resourcetrie)
-			   print "</ul>"
-			   print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
+		rlist = resp.resultlistlist[i]
+		if len(rlist) > 0:
+				if rlist.exactresult:
+						csstitleclass = 'exactrestitle'
+						cssclass = 'exactresults'
+				else:
+						csstitleclass = 'otherrestitle'
+						cssclass = 'otherresults'
+				
+				print "<a name='res%d' class='%s'>%s</a>" %(i, csstitleclass, resp.getLabels()[i])
+				print "<ul class='%s'>" % cssclass
+				resourcetrie = rlist.getTrie()
+				print ultrie(resourcetrie)
+				print "</ul>"
+				print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
 
 
 print bottomform
