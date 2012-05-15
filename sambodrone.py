@@ -42,6 +42,7 @@ class SambaDancer(threading.Thread):
 										r.uri = smburl
 										r.server = self.target
 										r.comment = e.comment
+										r.filetype = "directory"
 										try:
 												self.silos.addRes(r)
 										except:

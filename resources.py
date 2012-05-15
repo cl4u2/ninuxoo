@@ -48,12 +48,14 @@ class Resource():
 						self.path = urisrest
 				except:
 						urisrest = self.uri
-				try: # filetype
-						self.filetype = m.group(4).upper()
-						self.addTags(self.filetype)
-						self.path += "." + m.group(4)
-				except:
-						self.filetype = ""
+
+				if not self.filetype:
+						try: # filetype
+								self.filetype = m.group(4).upper()
+								self.addTags(self.filetype)
+								self.path += "." + m.group(4)
+						except:
+								self.filetype = ""
 				
 				# split the uris into tags
 				separators = "./\\_' ,-!\"#$%^&*()[];:{}=@|"
@@ -63,6 +65,26 @@ class Resource():
 						for e in tmptags:
 								tmptagsnew += e.split(s) 
 						tmptags = tmptagsnew
+
+				#detect CamelCase
+				tmptagsnew = list()
+				for e in tmptags:
+						if len(e) <= 2:
+								continue
+						currentupper = e[0].isupper() 
+						justchanged = True
+						currentword = [e[0]]
+						for c in e[1:]:
+								if justchanged or (c.isupper() == currentupper):
+										currentword.append(c)
+										justchanged = False
+								else:
+										tmptagsnew.append("".join(currentword))
+										currentword = [c]
+										justchanged = True
+								currentupper = c.isupper()
+						tmptagsnew.append("".join(currentword))
+				tmptags += tmptagsnew
 
 				# delete duplicates and the empty string
 				tmptags = list(set(tmptags))
@@ -93,6 +115,15 @@ class Resource():
 						except UnicodeEncodeError:
 								r = ""
 				return r
+		def __eq__(self, other):
+				try:
+						scmpuri = self.uri.split('/')[-1]
+						ocmpuri = other.uri.split('/')[-1]
+				except IndexError:
+						return False
+				return scmpuri == ocmpuri
+		def __ne__(self, other):
+				return not (self == other)
 
 
 class Query(Resource):
@@ -104,23 +135,27 @@ class Query(Resource):
 
 
 class ResourceTrie():
-		def __init__(self, label=""):
+		def __init__(self, label="", rank=0):
 				self.label = label
 				self.children = dict()
 				self.resources = list()
 				self.nres = 0
+				self.rank = rank
 
 		def insert(self, resource):
 				self.__insert(resource, resource.tokenize())
 
 		def __insert(self, resource, tokens=None):
 				if len(tokens) <= 1:
-						self.resources.append(resource)
-						self.nres += 1
-						return 1
+						if resource.filetype != "directory":
+								self.resources.append(resource)
+								self.nres += 1
+								return 1
+						else:
+								return 0
 				t0 = tokens[0]
 				if not self.children.has_key(t0):
-						newtrie = ResourceTrie(t0)
+						newtrie = ResourceTrie(t0, self.rank+1)
 						self.children.update({t0: newtrie})
 				res = self.children[t0].__insert(resource, tokens[1:])
 				self.nres += res
@@ -137,10 +172,50 @@ class ResourceTrie():
 						res += child.fancyrepr(spacen + 1) + "\n"
 				return res
 
+		def prune(self):
+				"delete subtries that differ only on the server's IP address/hostname"
+				if self.rank == 0:
+						for child in self.children.values():
+								if child.rank > 0: #should always be True
+										child.prune()
+						return
+				res = {}
+				blacklist = []
+				childrenkv = [(k,v) for k,v in self.children.iteritems()]
+				for i in range(len(childrenkv)):
+						if i in blacklist:
+								continue
+						ki, ci = childrenkv[i]
+						for j in range(len(childrenkv)):
+								if i == j:
+										continue
+								cj = childrenkv[j][1]
+								if ci == cj:
+										blacklist.append(j)
+						res.update({ki: ci})
+				self.children = res
+
 		def __str__(self):
 				return self.fancyrepr()
 
-
+		def __eq__(self, other):
+				if self.rank > 3 and other.rank > 3: #don't compare the top labels, i.e. URL scheme and server IP
+						if self.label != other.label:
+								return False
+				if len(self.children.keys()) != len(other.children.keys()):
+						return False
+				if len(self.resources) != len(other.resources):
+						return False
+				for rs, ro in zip(self.resources, other.resources):
+						if rs != ro:
+								return False
+				for cs, co in zip(self.children.values(), other.children.values()):
+						if not cs.__eq__(co):
+								return False
+				return True
+	
+		def __ne__(self, other):
+				return not self.__eq__(other)
 
 
 if __name__ == "__main__":
@@ -151,7 +226,10 @@ if __name__ == "__main__":
 		q = Query("ciao")
 		q.makeTags()
 		print q
-		r1 = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciaociao/", server="10.0.1.1")
+		q = Query("VinicioCapossela")
+		q.makeTags()
+		print q
+		r1 = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciaociao/brutto.avi", server="10.0.1.1")
 		r1.makeTags()
 		print r1
 		print r1.protocol, "|", r1.server, "|", r1.path, "|", r1.filetype
@@ -160,6 +238,34 @@ if __name__ == "__main__":
 		rt.insert(r)
 		rt.insert(r1)
 		print "-----"
+		print str(rt)
+		print "-----"
+		r2 = Resource(uri="smb://10.0.2.1/public.h/uuuu/ciaociao/brutto.avi", server="10.0.2.1")
+		rt2 = ResourceTrie()
+		rt2.insert(r)
+		print rt == rt2
+		print rt != rt2
+		rt2.insert(r1)
+		print rt == rt2
+		print rt != rt2
+		rt2.insert(r2)
+		print rt == rt2
+		rt.insert(r2)
+		print rt == rt2
+		print "-----"
+		rt = ResourceTrie()
+		rt.insert(r1)
+		rt2 = ResourceTrie()
+		rt2.insert(r2)
+		print rt == rt2
+		print "-----"
+		rt = ResourceTrie()
+		rt.insert(r1)
+		rt.insert(r2)
+		print str(rt)
+		print "--------<>-----"
+		rt.prune()
+		print "--------<>-----"
 		print str(rt)
 
 

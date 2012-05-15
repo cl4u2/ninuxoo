@@ -56,7 +56,7 @@ qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 resp = qm.getNewFiles(2000)
 
 smbschema = "smb://"
-schoice = "verbose"
+schoice = "nonverbose"
 
 def ultrie(resourcetrie, resuri=""):
 		res = res1 = ""
@@ -108,6 +108,7 @@ for i in range(len(resp.resultlistlist)):
 				print "<a name='res%d' class='%s'>%s</a>" %(i, csstitleclass, resp.getLabels()[i])
 				print "<ul class='%s'>" % cssclass
 				resourcetrie = rlist.getTrie()
+				resourcetrie.prune()
 				print ultrie(resourcetrie)
 				print "</ul>"
 				print "<div class='bottomtoplink'><span class='uarr'>&uarr;</span><a href='#rindex'>TOP</a></div>"
