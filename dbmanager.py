@@ -94,10 +94,11 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 						protocol,
 						path,
 						filetype,
-						firstseen
+						firstseen,
+						timestamp
 				) VALUES (
-				'%s', '%s', '%s', '%s', '%s', NOW())
-				ON DUPLICATE KEY UPDATE 
+				'%s', '%s', '%s', '%s', '%s', NOW(), NOW()
+				) ON DUPLICATE KEY UPDATE 
 					server = '%s',
 					protocol = '%s',
 					path = '%s',
