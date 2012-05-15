@@ -3,6 +3,7 @@
 
 import MySQLdb
 import threading
+import collections
 from resources import *
 
 TIMEDIFF = 259200  #3 days
@@ -32,13 +33,13 @@ class MysqlConnectionManager():
 
 class ResourceSilos():
 		def __init__(self):
-				self.__reslist = list()
+				self.__reslist = collections.deque()
 				self.__reslock = threading.Condition()
 		def getRes(self):
 				self.__reslock.acquire()
 				while len(self.__reslist) <= 0:
 						self.__reslock.wait()
-				result = self.__reslist.pop()
+				result = self.__reslist.popleft()
 				self.__reslock.release()
 				return result
 		def addRes(self, resource):
@@ -46,6 +47,11 @@ class ResourceSilos():
 				self.__reslist.append(resource)
 				self.__reslock.notify()
 				self.__reslock.release()
+		def moreToGo(self):
+				self.__reslock.acquire()
+				res = len(self.__reslist)
+				self.__reslock.release()
+				return res > 0
 
 class FakeSilos():
 		def getRes(self):
@@ -58,15 +64,24 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				MysqlConnectionManager.__init__(self, dbhost, dbuser, dbpassword, database)
 				threading.Thread.__init__(self)
 				self.silos = silos
-		def store(self, resource):
+				self.alldone = False
+				self.commitcounter = 0
+		def store(self, resource, commitN=1):
 				resource.makeTags()
 				print resource
 				cursor = self.conn.cursor()
 				self.__insertRes(cursor, resource)
 				for tag in resource.tags:
 						self.__insertTags(cursor, resource.uri, tag)
-				self.conn.commit()
+						if self.commitcounter >= commitN:
+								self.conn.commit()
+								self.commitcounter = 0
+						else:
+								self.commitcounter += 1
 				cursor.close()
+		def commit(self):
+				print "committing..."
+				self.conn.commit()
 		def __insertRes(self, cursor, resource):
 				sserver = resource.server.strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				sprotocol =	resource.protocol.strip().replace("'","\\'").encode('utf-8', errors='ignore')
@@ -86,7 +101,8 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 					server = '%s',
 					protocol = '%s',
 					path = '%s',
-					filetype = '%s'
+					filetype = '%s',
+					timestamp = NOW()
 				""" % (
 						resource.uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
 						sserver,
@@ -111,22 +127,32 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				)
 				cursor.execute(insertionstring)
 		def run(self):
-				while(True):
+				i = 0
+				while (not self.alldone) or self.silos.moreToGo():
 						r = self.silos.getRes()
-						self.store(r)
+						self.store(r, commitN=100)
+						i += 1
+				self.commit() #using a single final commit can save a lot of time but not sure if can handle single SQL errors
+				print "%d insertions" % i
+		def allFinished(self):
+				self.alldone = True
 
 class QueryResult1():
 		def __init__(self, resultlist, exactresult, label):
 				self.resultlist = resultlist
 				self.exactresult = exactresult
 				self.label = label
-		def __len__(self):
-				return len(self.resultlist)
 		def getTrie(self):
 				trie = ResourceTrie()
 				for r in self.resultlist:
 						trie.insert(r)
 				return trie
+		def __len__(self):
+				return len(self.resultlist)
+		def __eq__(self, other):
+				return self.getTrie() == other.getTrie()
+		def __ne__(self, other):
+				return not self.__eq__(other)
 
 class QueryResultS():
 		def __init__(self):
@@ -147,6 +173,7 @@ class QueryResultS():
 				return [li for li in self.resultlistlist if li.exactresult]
 		def getOtherResults(self):
 				return [li for li in self.resultlistlist if not li.exactresult]
+
 
 
 class QueryMaker(MysqlConnectionManager):
