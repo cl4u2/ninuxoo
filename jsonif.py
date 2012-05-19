@@ -104,6 +104,27 @@ class JSONProcessor():
 						response = JsonResponse(RESPONSE_SERVERERROR)
 				return response
 
+		def __fillresponse(self, resp, searchtime):
+				finallist = list()
+				for res1 in resp.resultlistlist:
+						resourcetrie = res1.getTrie()
+						resourcetrie.prune()
+						res1dict = {
+										'resultlabel': res1.label,
+										'exactresult': res1.exactresult,
+										'nresults': len(res1.resultlist),
+										'resources': resourcetrie.dictify()
+									}
+						finallist.append(res1dict)
+
+				response = JsonResponse(RESPONSE_OK, None, {
+						'nresults': resp.getLen(), 
+						'nlabels': len(resp.getLabels()),
+						'searchtime': searchtime, 
+						'results': finallist
+						})
+
+				return response
 		def query(self, request):
 				try:
 						if not request.has_key('q'):
@@ -125,28 +146,102 @@ class JSONProcessor():
 						resp = self.qm.query(q, nres)
 						tend = time.time()
 						searchtime = tend - tsta
-						finallist = list()
 
-						for res1 in resp.resultlistlist:
-								resourcetrie = res1.getTrie()
-								resourcetrie.prune()
-								res1dict = {
-												'resultlabel': res1.label,
-												'exactresult': res1.exactresult,
-												'nresults': len(res1.resultlist),
-												'resources': resourcetrie.dictify()
-											}
-								finallist.append(res1dict)
-
-						response = JsonResponse(RESPONSE_OK, None, {
-								'nresults': resp.getLen(), 
-								'searchtime': searchtime, 
-								'results': finallist
-								})
+						response = self.__fillresponse(resp, searchtime)
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
 
 				return response
 
+		def exactquery(self, request):
+				try:
+						if not request.has_key('q'):
+								response = JsonResponse(RESPONSE_REQERROR, "Bad request: search term(s) missing")
+								return response
+						req = request['q']
+								
+						q = Query(req)
+						tsta = time.time()
+						resp = self.qm.exactquery(q)
+						tend = time.time()
+						searchtime = tend - tsta
+
+						response = self.__fillresponse(resp, searchtime)
+
+				except Exception, e:
+						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
+
+				return response
+
+		def orquery(self, request):
+				try:
+						if not request.has_key('q'):
+								response = JsonResponse(RESPONSE_REQERROR, "Bad request: search term(s) missing")
+								return response
+						req = request['q']
+								
+						q = Query(req)
+						tsta = time.time()
+						resp = self.qm.orquery(q)
+						tend = time.time()
+						searchtime = tend - tsta
+						
+						response = self.__fillresponse(resp, searchtime)
+
+				except Exception, e:
+						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
+
+				return response
+
+		def likequery(self, request):
+				try:
+						if not request.has_key('q'):
+								response = JsonResponse(RESPONSE_REQERROR, "Bad request: search term(s) missing")
+								return response
+						req = request['q']
+						
+						if request.has_key('words'):
+								try: 
+										limit = int(request['words'])
+								except Exception, e:
+										response = JsonResponse(RESPONSE_REQERROR, "Bad request [%s]" % str(e))
+										return response
+						else:
+								limit = 3 #FIXME
+								
+						q = Query(req)
+						tsta = time.time()
+						resp = self.qm.likequery(q, limit)
+						tend = time.time()
+						searchtime = tend - tsta
+						response = self.__fillresponse(resp, searchtime)
+
+				except Exception, e:
+						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
+
+				return response
+
+		def whatsnew(self, request):
+				try:
+						if request.has_key('nresults'):
+								try: 
+										nres = int(request['nresults'])
+								except Exception, e:
+										response = JsonResponse(RESPONSE_REQERROR, "Bad request [%s]" % str(e))
+										return response
+						else:
+								nres = 200 #FIXME
+								
+						tsta = time.time()
+						resp = self.qm.getNewFiles(nres)
+						tend = time.time()
+						searchtime = tend - tsta
+						
+						response = self.__fillresponse(resp, searchtime)
+
+				except Exception, e:
+						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
+
+				return response
 

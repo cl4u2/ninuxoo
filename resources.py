@@ -231,7 +231,7 @@ class ResourceTrie():
 				for child in self.children.values():
 						reschildren.append(child.dictify())
 
-				resdict = {'label': self.label, 'resources': resresources, 'children': reschildren}
+				resdict = {'label': self.label, 'resources': resresources, 'children': reschildren, 'rank': self.rank}
 				return resdict
 
 
