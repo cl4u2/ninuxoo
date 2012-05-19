@@ -217,6 +217,23 @@ class ResourceTrie():
 		def __ne__(self, other):
 				return not self.__eq__(other)
 
+		def dictify(self):
+				"return a nested dictionary representing this trie"
+				resresources = list()
+				for resource in self.resources:
+						resresources.append({
+								'uri': resource.uri, 
+								'filename': resource.getFilename(), 
+								'filetype': resource.filetype
+								})
+
+				reschildren = list()
+				for child in self.children.values():
+						reschildren.append(child.dictify())
+
+				resdict = {'label': self.label, 'resources': resresources, 'children': reschildren}
+				return resdict
+
 
 if __name__ == "__main__":
 		r = Resource(uri="smb://10.0.1.1/public.h/uuuu/ciao.ciao/bello.mp3", server="10.0.1.1")
@@ -267,5 +284,6 @@ if __name__ == "__main__":
 		rt.prune()
 		print "--------<>-----"
 		print str(rt)
+		print rt.dictify()
 
 
