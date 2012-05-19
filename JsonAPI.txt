@@ -1,12 +1,12 @@
 = ninuXoo JSON API =
 
-== Operations ==
+== Search Operations ==
 
 Operation: exactquery 
 Description: return the search results that match exactly (i.e. performing an
 AND between the exact words) <querystring>, trying to retrieve at least
-<nresults> results URL:
-/json.cgi?op=exactquery&q=<querystring>&nresults=<nresults>
+<nresults> results 
+URL: /json.cgi?op=exactquery&q=<querystring>&nresults=<nresults>
 
 Operation: orquery
 Description: return the search results that match the single exact words in
@@ -28,21 +28,25 @@ discovered, trying to retrieve at least <nresult> results, but no more than
 <nresult>
 URL: /json.cgi?op=whatsnew&nresults=<nresults>
 
-== Results Format ==
+NOTES: nresults default is 200
+
+== Search Results Format ==
 
 {
     responsen: <response number>,
     response: <response description>,
-    results: {
+    nresults: <number of results>,
+	searchtime: <search time>,
+    results: [
                {
                resultlabel: <results label>,
                exactresult: <exact result flag>,
                nresults: <number of results>,
-               resources: {
+               resources: [
                       server: <server IP>,
                       resourcetrie: {
                            label: <label>,
-                           resources: {
+                           resources: [
                                 {
                                     uri: <resource URI>,
                                     filename: <file name>,
@@ -54,16 +58,16 @@ URL: /json.cgi?op=whatsnew&nresults=<nresults>
                                     filetype: <file type>
                                 },
                                 ...
-                           },
-                           children: {
+                           ],
+                           children: [
                                 {
                                     label: <label>,
-                                    resources {
+                                    resources [
                                        ...
-                                    },
-                                    children: {
+                                    ],
+                                    children: [
                                        ...
-                                    }
+                                    ]
                                 },
                                 {
                                     label: <label>,
@@ -75,30 +79,32 @@ URL: /json.cgi?op=whatsnew&nresults=<nresults>
                                     }
                                 },
                                 ...
-                           }
+                           ]
                       }
-               }
+               ]
          },
          {
                resultlabel: <results label>,
                exactresult: <exact result flag>,
                nresults: <number of results>,
-               resources: {
+               resources: [
                       ...
-               }
+               ]
          },
          ...
-    }
+    ]
 }
 
 
-response number: 200 -> OK, 400 -> bad request, 500 -> server error 
+response number: 200 -> OK, 400 -> bad request, 418 -> i'm a teapot, 500 -> server error, 501 -> not implemented
 
 response description: textual description of the response
 
+search time: time, in seconds, needed to perform the search
+
 results label: the search term or terms that yield to the following results
 
-exact result flag: 1 for "exact" result, 0 for "or" or "like" result
+exact result flag: true for "exact" result, false for "or" or "like" result
 
 number of results: number of resources in the "resources" object
 
@@ -112,4 +118,22 @@ file name: the resource's file name
 
 file type: the resource's file type
 
+
+== Other Operations ==
+
+Operation: resourcestats
+Description: return the total number of resources currently indexed by the search engine
+URL: /json.cgi?op=resourcestats
+
+Operation: serverstats
+Description: return the total number of servers currently indexed by the search engine
+URL: /json.cgi?op=serverstats
+
+== Other Operations Response/Result Format ==
+
+{
+    responsen: <response number>,
+    response: <response description>,
+	result: <result>
+}
 
