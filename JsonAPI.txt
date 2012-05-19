@@ -4,30 +4,29 @@
 
 Operation: exactquery 
 Description: return the search results that match exactly (i.e. performing an
-AND between the exact words) <querystring>, trying to retrieve at least
-<nresults> results 
-URL: /json.cgi?op=exactquery&q=<querystring>&nresults=<nresults>
+AND between the exact words) <querystring>
+URL: /json.cgi?op=exactquery&q=<querystring>
 
 Operation: orquery
 Description: return the search results that match the single exact words in
-<querystring>, trying to retrieve at least <nresults> results
-URL: /json.cgi?op=orquery&q=<querystring>&nresults=<nresults>
+<querystring>
+URL: /json.cgi?op=orquery&q=<querystring>
 
 Operation: likequery
 Description: return search results by performing variations on the words in
-<querystring>, trying to retrieve at least <nresults> results
-URL: /json.cgi?op=likequery&q=<querystring>&nresults=<nresults>
+<querystring>, limiting to no more than <word limit> words
+URL: /json.cgi?op=likequery&q=<querystring>&words=<word limit>
 
 Operation: query 
 Description: return search results by applying in order the exactquery, orquery
 and likequery operations, trying to retrieve at least <nresults> results
 URL: /json.cgi?op=query&q=<querystring>&nresults=<nresults>
+NOTES: nresults default is 200
 
-Operation: whatsnew Description: return the resources that have been recently
-discovered, trying to retrieve at least <nresult> results, but no more than
-<nresult>
+Operation: whatsnew 
+Description: return the resources that have been recently discovered, trying to
+retrieve at least <nresults> results, but no more than <nresults>
 URL: /json.cgi?op=whatsnew&nresults=<nresults>
-
 NOTES: nresults default is 200
 
 == Search Results Format ==
@@ -36,6 +35,7 @@ NOTES: nresults default is 200
     responsen: <response number>,
     response: <response description>,
     nresults: <number of results>,
+	nlabels: <number of result labels>,
 	searchtime: <search time>,
     results: [
                {
@@ -43,9 +43,9 @@ NOTES: nresults default is 200
                exactresult: <exact result flag>,
                nresults: <number of results>,
                resources: [
-                      server: <server IP>,
                       resourcetrie: {
                            label: <label>,
+                           rank: <hierarchy rank>,
                            resources: [
                                 {
                                     uri: <resource URI>,
@@ -62,6 +62,7 @@ NOTES: nresults default is 200
                            children: [
                                 {
                                     label: <label>,
+                                    rank: <hierarchy rank>,
                                     resources [
                                        ...
                                     ],
@@ -71,6 +72,7 @@ NOTES: nresults default is 200
                                 },
                                 {
                                     label: <label>,
+                                    rank: <hierarchy rank>,
                                     resources {
                                        ...
                                     },
@@ -100,6 +102,8 @@ response number: 200 -> OK, 400 -> bad request, 418 -> i'm a teapot, 500 -> serv
 
 response description: textual description of the response
 
+number of result labels: number of set of results found
+
 search time: time, in seconds, needed to perform the search
 
 results label: the search term or terms that yield to the following results
@@ -108,9 +112,9 @@ exact result flag: true for "exact" result, false for "or" or "like" result
 
 number of results: number of resources in the "resources" object
 
-server IP: IP address or hostname of the server that contains the resources
-
 label: the (partial) path on the server
+
+hierarchy rank: the level of the trie's hierarchy. The server's IP/hostname has rank = 2, while the protocol (e.g. "smb:") has rank = 1
 
 resource URI: the resource's complete URI
 
