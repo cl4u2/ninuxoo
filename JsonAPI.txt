@@ -1,0 +1,115 @@
+= ninuXoo JSON API =
+
+== Operations ==
+
+Operation: exactquery 
+Description: return the search results that match exactly (i.e. performing an
+AND between the exact words) <querystring>, trying to retrieve at least
+<nresults> results URL:
+/json.cgi?op=exactquery&q=<querystring>&nresults=<nresults>
+
+Operation: orquery
+Description: return the search results that match the single exact words in
+<querystring>, trying to retrieve at least <nresults> results
+URL: /json.cgi?op=orquery&q=<querystring>&nresults=<nresults>
+
+Operation: likequery
+Description: return search results by performing variations on the words in
+<querystring>, trying to retrieve at least <nresults> results
+URL: /json.cgi?op=likequery&q=<querystring>&nresults=<nresults>
+
+Operation: query 
+Description: return search results by applying in order the exactquery, orquery
+and likequery operations, trying to retrieve at least <nresults> results
+URL: /json.cgi?op=query&q=<querystring>&nresults=<nresults>
+
+Operation: whatsnew Description: return the resources that have been recently
+discovered, trying to retrieve at least <nresult> results, but no more than
+<nresult>
+URL: /json.cgi?op=whatsnew&nresults=<nresults>
+
+== Results Format ==
+
+{
+    responsen: <response number>,
+    response: <response description>,
+    results: {
+               {
+               resultlabel: <results label>,
+               exactresult: <exact result flag>,
+               nresults: <number of results>,
+               resources: {
+                      server: <server IP>,
+                      resourcetrie: {
+                           label: <label>,
+                           resources: {
+                                {
+                                    uri: <resource URI>,
+                                    filename: <file name>,
+                                    filetype: <file type>
+                                },
+                                {
+                                    uri: <resource URI>,
+                                    filename: <file name>,
+                                    filetype: <file type>
+                                },
+                                ...
+                           },
+                           children: {
+                                {
+                                    label: <label>,
+                                    resources {
+                                       ...
+                                    },
+                                    children: {
+                                       ...
+                                    }
+                                },
+                                {
+                                    label: <label>,
+                                    resources {
+                                       ...
+                                    },
+                                    children: {
+                                       ...
+                                    }
+                                },
+                                ...
+                           }
+                      }
+               }
+         },
+         {
+               resultlabel: <results label>,
+               exactresult: <exact result flag>,
+               nresults: <number of results>,
+               resources: {
+                      ...
+               }
+         },
+         ...
+    }
+}
+
+
+response number: 200 -> OK, 400 -> bad request, 500 -> server error 
+
+response description: textual description of the response
+
+results label: the search term or terms that yield to the following results
+
+exact result flag: 1 for "exact" result, 0 for "or" or "like" result
+
+number of results: number of resources in the "resources" object
+
+server IP: IP address or hostname of the server that contains the resources
+
+label: the (partial) path on the server
+
+resource URI: the resource's complete URI
+
+file name: the resource's file name
+
+file type: the resource's file type
+
+
