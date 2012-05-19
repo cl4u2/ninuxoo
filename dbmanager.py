@@ -138,7 +138,8 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 		def allFinished(self):
 				self.alldone = True
 
-class QueryResult1():
+#TODO: move to resources?
+class QueryResult1(): 
 		def __init__(self, resultlist, exactresult, label):
 				self.resultlist = resultlist
 				self.exactresult = exactresult
@@ -335,6 +336,38 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2], firstseen=e[3]) for e in cursor.fetchall()]
 				return r
+
+		def exactquery(self, query):
+				query.makeTags()
+				qr = QueryResultS()
+				cursor = self.conn.cursor()
+				alltags = list(query.tags)
+				qr.addResultList(self.__andquery(cursor, alltags), alltags, "+", True)
+				cursor.close()
+				return qr
+
+		def orquery(self, query):
+				query.makeTags()
+				qr = QueryResultS()
+				cursor = self.conn.cursor()
+				alltags = list(query.tags)
+				qr.addResultList(self.__orquery(cursor, alltags), alltags, "/", True)
+				cursor.close()
+				return qr
+		
+		def likequery(self, query, limit=3):
+				query.makeTags()
+				qr = QueryResultS()
+				cursor = self.conn.cursor()
+				alltags = list(query.tags)
+				liketags = list()
+				for t in alltags:
+						liketags += self.__taglike(cursor, t, limit/len(alltags))
+				liketags = list(set(liketags).difference(set(alltags)))
+				for t in liketags:
+						qr.addResultList(self.__orquery(cursor, [t]), [t], "/", False)
+				cursor.close()
+				return qr
 
 
 if __name__ == "__main__":
