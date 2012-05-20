@@ -104,7 +104,7 @@ class JSONProcessor():
 						response = JsonResponse(RESPONSE_SERVERERROR)
 				return response
 
-		def __fillresponse(self, resp, searchtime):
+		def __fillresponse(self, resp, searchtime, q=""):
 				finallist = list()
 				for res1 in resp.resultlistlist:
 						resourcetrie = res1.getTrie()
@@ -113,11 +113,12 @@ class JSONProcessor():
 										'resultlabel': res1.label,
 										'exactresult': res1.exactresult,
 										'nresults': len(res1.resultlist),
-										'resources': resourcetrie.dictify()
+										'resourcetrie': resourcetrie.dictify()
 									}
 						finallist.append(res1dict)
 
 				response = JsonResponse(RESPONSE_OK, None, {
+						'q': q,
 						'nresults': resp.getLen(), 
 						'nlabels': len(resp.getLabels()),
 						'searchtime': searchtime, 
@@ -147,7 +148,7 @@ class JSONProcessor():
 						tend = time.time()
 						searchtime = tend - tsta
 
-						response = self.__fillresponse(resp, searchtime)
+						response = self.__fillresponse(resp, searchtime, req)
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
@@ -167,7 +168,7 @@ class JSONProcessor():
 						tend = time.time()
 						searchtime = tend - tsta
 
-						response = self.__fillresponse(resp, searchtime)
+						response = self.__fillresponse(resp, searchtime, req)
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
@@ -187,7 +188,7 @@ class JSONProcessor():
 						tend = time.time()
 						searchtime = tend - tsta
 						
-						response = self.__fillresponse(resp, searchtime)
+						response = self.__fillresponse(resp, searchtime, req)
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
@@ -215,7 +216,7 @@ class JSONProcessor():
 						resp = self.qm.likequery(q, limit)
 						tend = time.time()
 						searchtime = tend - tsta
-						response = self.__fillresponse(resp, searchtime)
+						response = self.__fillresponse(resp, searchtim, req)
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
@@ -238,7 +239,7 @@ class JSONProcessor():
 						tend = time.time()
 						searchtime = tend - tsta
 						
-						response = self.__fillresponse(resp, searchtime)
+						response = self.__fillresponse(resp, searchtime, "")
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
