@@ -1,0 +1,205 @@
+<!-- outputhead -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NinuXoo! - Ninux.org</title>
+	
+	<base href="./" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="author" content="Ninux.org Community - the Ninux Software Team" />
+	<meta name="description" content="Ninux.org search engine" />
+	
+	<link rel="shortcut icon" href="common/media/favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="common/css/main.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="common/js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript">
+	
+    $.ultrie = function(resourcetrie, resuri) {
+		res = "" 
+		res1 = ""
+		newli = false
+		fork = false
+		nres = resourcetrie.resources.length;
+		$.each(resourcetrie.children, function(index, child) {
+				if(child.resources.length < nres) 
+					fork = true;
+		});
+		if(fork && resourcetrie.rank > 1) {
+				res1 += "<li class='label'>" 
+				res1 += resuri + "/"
+				res1 += "</li>" 
+				newli = true
+		}
+		if(resourcetrie.resources.length > 1) {
+				if(!fork) {
+						res1 += "<li class='label'>" 
+						res1 += resuri 
+						res1 += "/ "
+						res1 += "</li>" 
+						newli = true
+						resuri = ""
+				}
+				res1 += "<ul>" 
+				$.each(resourcetrie.resources, function(index, resource) {
+						res1 += '<li class="result"><a href="'
+						res1 += resource.uri;
+						res1 += '">'
+						res1 += resource.filename 
+						res1 += '</a></li>' 
+				});
+				res1 += "</ul>" 
+		}
+		$.each(resourcetrie.children, function(index, child) {
+				if(child.rank > 1) {
+						if(child.resources.length < nres) {
+								res1 += $.ultrie(child, "/" + child.label)
+						} else {
+								res1 += $.ultrie(child, resuri + "/" + child.label) 
+						}
+				} else {
+						res1 += $.ultrie(child, "//")
+				}
+		});
+		if(newli)
+				res = "<ul>" + res1 + "</ul>\n"
+		else
+				res = res1
+		return res;
+
+	};
+
+	$(document).ready(function() {
+			$("#results").hide();
+			$("#resultstree").html("");
+			$("#searchform").submit(function(e) {
+					e.preventDefault();
+					$.getJSON('/cgi-bin/json.cgi', $(this).serializeArray(), function(data) {
+							s = "Ricerca di &quot;" + data.q + "&quot;";
+							$("#searchwhat").html(s);
+							s = data.nresults + " risultati trovati in " + Math.round(data.searchtime*100)/100 + " secondi";
+							$("#resstats").html(s);
+							i = 0;
+							$.each(data.results, function(index, value) {
+									if(data.exactresult)
+											s = "<li class='exactresult'>";
+									else
+											s = "<li class='otherresult'>";
+									s += "<a href='#res" + index + "'>";
+									s += value.resultlabel;
+									s += "</a><span>";
+									s += value.nresults;
+									s += " risultati</span></li>";
+									$("#searchlabels").append(s);
+									s = $.ultrie(value.resourcetrie, "");
+									$("#resultstree").append(s);
+							});
+							$("#results").show();
+					});
+					return false;
+			});
+			$("#whatsnew").click(function(e) {
+					e.preventDefault();
+					$.getJSON('/cgi-bin/json.cgi', 'op=whatsnew', function(data) {
+							$("#page_content_main").html(data.nresults);
+					});
+					return false;
+			});
+			$.getJSON('/cgi-bin/json.cgi', 'op=resourcestats', function(data) {
+					$("#resstats").html(data.result + " files indicizzati ");
+					$.getJSON('/cgi-bin/json.cgi', 'op=serverstats', function(data) {
+						$("#resstats").append("su " + data.result);
+				   		$("#resstats").append(" <a href='cgi-bin/browse_share.cgi' title='Esplora i files i condivisione'>Server</a>");
+					});
+			});
+	});
+	</script>
+</head>
+<body>
+	<div id="top_menu">
+		<table>
+			<tr>
+				<td>
+					<ul>
+						<li><a href="#" id="whatsnew" title="Nuovi files indicizzati">Novit&agrave;</a></li>
+						<li><a href="cgi-bin/browse_share.cgi" title="Esplora i files i condivisione">Condivisioni</a></li>
+						<li><a href="http://10.168.177.178:8888/" title="Ascolta la musica in rete">Juke Box</a></li>
+						<li><a href="cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org" title="Elenco telefonico"><acronym title="Voice over IP">VoIP</acronym></a></li>
+						<li><a href="http://10.168.43.127/meteo/" title="Visualizza dati meteo in tempo reale">Meteo Roma</a></li>
+						<li class="separator">&nbsp;</li>
+						<li><a href="http://blog.ninux.org/" title="Vai al nostro Blog">Blog</a></li>
+						<li><a href="http://wiki.ninux.org/" title="Vai al nostro Wiki">Wiki</a></li>
+					</ul>
+				</td>
+				<td>
+					<ul id="second_menu">
+						<li><a href="http://10.162.0.85/" title="Controlla la posta">Posta</a></li>
+					</ul>
+				</td>
+			</tr>
+			<tr><td>&nbsp;</td></tr>
+		</table>
+	</div>
+	<div id="main_container">
+		<div id="main_header">
+			<table>
+				<tr>
+					<td>
+						<a href="javascript:void(0);" onclick="load_content('home');">
+							<img src="common/media/img/logo.png" alt="Logo Ninuxoo" />
+						</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="container">
+			<div id="content">
+				<table id="main_search" cellspacing="0" cellpadding="0">
+					<tr>
+						<td>
+							<form id="searchform" action="#" method="get">
+								<input type="hidden" name="op" value="query" style="display: none;">
+								<input type="hidden" name="nresults" value="200" style="display: none;">
+								<input type="search" name="q" value="" placeholder="Cerca in Ninuxoo" >
+								<input type="submit" value="" style="display: none;">
+							</form>
+						</td>
+						<td>
+							<a href="Ricerca_avanzata" title="Ricerca avanzata"></a>
+						</td>
+					</tr>
+				</table>
+				<div id="page_content_main">
+					<div id="resstats" class="resstats"></div>
+				</div>
+			</div>
+			<div id="results">
+				<div id="page_content">
+					<h1 id="searchwhat"></h1>
+					<h2 id="resstats" class="resstats"></h2>
+					<div id="right_menu">
+						<h3>STATISTICHE<span>di ricerca</span></h3>
+						<ul id="searchlabels">
+						</ul>
+					</div>
+					<div class="search_results">
+						<h1>Termine di ricerca</h1>
+						<ul id="research_term_control" class="treecontrol">
+							<li><a href="javascript:void(0);" title="Espandi tutti gli alberi" class="open"></a></li>
+							<li><a href="javascript:void(0);" title="Racchiudi tutti gli alberi" class="close"></a></li>
+							<li><a href="javascript:void(0);" title="Inverti modalità: se aperto chiudi, se chiuso apri" class="toggle"></a></li>
+						</ul>
+						<ul id="resultstree" class="exactresults filetree treeview">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- end outputhead -->
+			<!-- outputtail -->
+			<div id="footer">
+				Powered by Ninux Community ~ the Ninux Software &amp; Communication Team :: used icons made by <a href="http://www.picol.org/" target="_blank" title="PIctorial COmmunication Language - Richiede inoltro a Internet">Picol project</a>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+<!-- end outputtail -->
