@@ -86,10 +86,20 @@ class Resource():
 						tmptagsnew.append("".join(currentword))
 				tmptags += tmptagsnew
 
+				
+				#try to deal with unicode
+				def utf8tag(tag):
+						try:
+								return tag.encode('utf-8', 'ignore')
+						except:
+								return ""
+				tmptags = [utf8tag(e) for e in tmptags]
+				
 				# delete duplicates and the empty string
 				tmptags = list(set(tmptags))
 				stopwords = ['THE', 'IL', 'UN', 'UNA', 'GLI', 'LE', 'LO', 'A', 'E', 'I', 'O', 'L', 'OF'] 
 				tmptags = [e for e in tmptags if len(e) > 0 and not e.upper() in stopwords]
+
 				self.addTags(tmptags)
 
 		def tokenize(self):
