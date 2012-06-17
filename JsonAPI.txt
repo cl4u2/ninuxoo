@@ -34,6 +34,7 @@ NOTES: nresults default is 200
 {
     responsen: <response number>,
     response: <response description>,
+    q: <search terms>,
     nresults: <number of results>,
 	nlabels: <number of result labels>,
 	searchtime: <search time>,
@@ -42,8 +43,7 @@ NOTES: nresults default is 200
                resultlabel: <results label>,
                exactresult: <exact result flag>,
                nresults: <number of results>,
-               resources: [
-                      resourcetrie: {
+               resourcetrie: {
                            label: <label>,
                            rank: <hierarchy rank>,
                            resources: [
@@ -82,16 +82,15 @@ NOTES: nresults default is 200
                                 },
                                 ...
                            ]
-                      }
-               ]
+               }
          },
          {
                resultlabel: <results label>,
                exactresult: <exact result flag>,
                nresults: <number of results>,
-               resources: [
+               resourcetrie: {
                       ...
-               ]
+               }
          },
          ...
     ]
