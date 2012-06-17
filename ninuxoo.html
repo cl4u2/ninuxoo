@@ -30,13 +30,13 @@
 				if(child.resources.length < nres) 
 					fork = true;
 		});
-		if(fork && (resourcetrie.rank > 1)) {
+		if(fork && (resourcetrie.label.indexOf('smb:') != 0 && resourcetrie.label.indexOf('ftp:') != 0)) {
 				res1 += "<li class='label collabsable folder'><span class='folder'>" 
 				res1 += resuri + "/"
 				res1 += "</span>" 
 				newli = true
 		}
-		if(resourcetrie.resources.length > 1) {
+		if(resourcetrie.resources.length > 0) {
 				if(!fork) {
 						res1 += "<li class='label collabsable folder'><span class='folder'>" 
 						res1 += resuri 
@@ -59,7 +59,7 @@
 				}
 		}
 		$.each(resourcetrie.children, function(index, child) {
-				if(child.rank > 1) {
+				if(child.label.indexOf('smb:') != 0 && child.label.indexOf('ftp:') != 0) {
 						if(child.resources.length < nres) {
 								res1 += $.ultrie(child, "/" + child.label)
 						} else {
@@ -69,7 +69,7 @@
 						res1 += $.ultrie(child, "//")
 				}
 		});
-		if(fork && (resourcetrie.rank > 1)) {
+		if(fork && (resourcetrie.label.indexOf('smb:') != 0 && resourcetrie.label.indexOf('ftp:') != 0)) {
 				res1 += "</li>" 
 		}
 		if(newli)
@@ -85,6 +85,8 @@
 			$("#resultstree").html("");
 			$("#searchform").submit(function(e) {
 					e.preventDefault();
+					$("#searchlabels").html("");
+					$("#resultstree").html("");
 					$.getJSON('/cgi-bin/json.cgi', $(this).serializeArray(), function(data) {
 							s = "Ricerca di &quot;" + data.q + "&quot;";
 							$("#searchwhat").html(s);
@@ -103,6 +105,8 @@
 									s += value.nresults;
 									s += " risultati</span></li>";
 									$("#searchlabels").append(s);
+									s = "<h1 class='resultlabel'>" + value.resultlabel + "</h1>";
+									$("#resultstree").append(s);
 									s = $.ultrie(value.resourcetrie, "");
 									$("#resultstree").append(s);
 							});
@@ -195,7 +199,6 @@
 						</ul>
 					</div>
 					<div class="search_results">
-							<!--h1 id="researchwords">Termine di ricerca</h1> -->
 						<ul id="research_term_control" class="treecontrol">
 							<li><a href="javascript:void(0);" title="Espandi tutti gli alberi" class="open"></a></li>
 							<li><a href="javascript:void(0);" title="Racchiudi tutti gli alberi" class="close"></a></li>
