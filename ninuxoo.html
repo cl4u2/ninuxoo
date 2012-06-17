@@ -12,6 +12,12 @@
 	<link rel="shortcut icon" href="common/media/favicon.ico" type="image/x-icon" />
 	<link rel="stylesheet" href="common/css/main.css" type="text/css" media="screen" />
 	<script type="text/javascript" src="common/js/jquery-1.7.2.min.js"></script>
+	<link rel="stylesheet" href="common/js/jquery.treeview/jquery.treeview.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="common/js/jquery.treeview/jquery.treeview.js"></script>
+	<link href="common/js/zoombox/zoombox.css" rel="stylesheet" type="text/css" media="screen" />
+	<script type="text/javascript" src="common/js/zoombox/zoombox.js"></script>
+	<script type="text/javascript" src="common/js/jquery.qtip-1.0.0-rc3.min.js"></script>
+	<script type="text/javascript" src="common/js/qtip-integration.js"></script>
 	<script type="text/javascript">
 	
     $.ultrie = function(resourcetrie, resuri) {
@@ -24,30 +30,33 @@
 				if(child.resources.length < nres) 
 					fork = true;
 		});
-		if(fork && resourcetrie.rank > 1) {
-				res1 += "<li class='label'>" 
+		if(fork && (resourcetrie.rank > 1)) {
+				res1 += "<li class='label collabsable folder'><span class='folder'>" 
 				res1 += resuri + "/"
-				res1 += "</li>" 
+				res1 += "</span>" 
 				newli = true
 		}
 		if(resourcetrie.resources.length > 1) {
 				if(!fork) {
-						res1 += "<li class='label'>" 
+						res1 += "<li class='label collabsable folder'><span class='folder'>" 
 						res1 += resuri 
 						res1 += "/ "
-						res1 += "</li>" 
-						newli = true
-						resuri = ""
+						res1 += "</span>" 
 				}
 				res1 += "<ul>" 
 				$.each(resourcetrie.resources, function(index, resource) {
-						res1 += '<li class="result"><a href="'
+						res1 += '<li class="result"><span class="file"><a href="';
 						res1 += resource.uri;
 						res1 += '">'
 						res1 += resource.filename 
-						res1 += '</a></li>' 
+						res1 += '</a></span></li>' 
 				});
-				res1 += "</ul>" 
+				res1 += "</ul>";
+				if(!fork) {
+						res1 += "</li>";
+						newli = true;
+						resuri = "";
+				}
 		}
 		$.each(resourcetrie.children, function(index, child) {
 				if(child.rank > 1) {
@@ -60,6 +69,9 @@
 						res1 += $.ultrie(child, "//")
 				}
 		});
+		if(fork && (resourcetrie.rank > 1)) {
+				res1 += "</li>" 
+		}
 		if(newli)
 				res = "<ul>" + res1 + "</ul>\n"
 		else
@@ -79,6 +91,7 @@
 							s = data.nresults + " risultati trovati in " + Math.round(data.searchtime*100)/100 + " secondi";
 							$("#resstats").html(s);
 							i = 0;
+							$("#searchwhat").html(data.q);
 							$.each(data.results, function(index, value) {
 									if(data.exactresult)
 											s = "<li class='exactresult'>";
@@ -182,7 +195,7 @@
 						</ul>
 					</div>
 					<div class="search_results">
-						<h1>Termine di ricerca</h1>
+							<!--h1 id="researchwords">Termine di ricerca</h1> -->
 						<ul id="research_term_control" class="treecontrol">
 							<li><a href="javascript:void(0);" title="Espandi tutti gli alberi" class="open"></a></li>
 							<li><a href="javascript:void(0);" title="Racchiudi tutti gli alberi" class="close"></a></li>
