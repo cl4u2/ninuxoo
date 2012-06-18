@@ -20,7 +20,7 @@
 	<script type="text/javascript" src="common/js/qtip-integration.js"></script>
 	<script type="text/javascript">
 	
-    $.ultrie = function(resourcetrie, resuri) {
+    $.ultrie = function(resourcetrie, resuri, realuri) {
 		res = "" 
 		res1 = ""
 		newli = false
@@ -31,16 +31,21 @@
 					fork = true;
 		});
 		if(fork && (resourcetrie.label.indexOf('smb:') != 0 && resourcetrie.label.indexOf('ftp:') != 0)) {
-				res1 += "<li class='label collabsable folder'><span class='folder'>" 
-				res1 += resuri + "/"
+				res1 += "<li class='label collabsable folder'><span class='folder'><a href='" 
+				res1 += "/cgi-bin/browse_share.cgi?url=" + realuri + "/";
+				res1 += "'>";
+				res1 += resuri;
+				res1 += "/ </a>";
 				res1 += "</span>" 
 				newli = true
 		}
 		if(resourcetrie.resources.length > 0) {
 				if(!fork) {
-						res1 += "<li class='label collabsable folder'><span class='folder'>" 
-						res1 += resuri 
-						res1 += "/ "
+						res1 += "<li class='label collabsable folder'><span class='folder'><a href='";
+						res1 += "/cgi-bin/browse_share.cgi?url=" + realuri + "/";
+						res1 += "'>";
+						res1 += resuri; 
+						res1 += "/ </a>";
 						res1 += "</span>" 
 				}
 				res1 += "<ul>" 
@@ -61,12 +66,12 @@
 		$.each(resourcetrie.children, function(index, child) {
 				if(child.label.indexOf('smb:') != 0 && child.label.indexOf('ftp:') != 0) {
 						if(child.resources.length < nres) {
-								res1 += $.ultrie(child, "/" + child.label)
+								res1 += $.ultrie(child, "/" + child.label, realuri + "/" + child.label)
 						} else {
-								res1 += $.ultrie(child, resuri + "/" + child.label) 
+								res1 += $.ultrie(child, resuri + "/" + child.label, realuri + "/" + child.label) 
 						}
 				} else {
-						res1 += $.ultrie(child, "//")
+						res1 += $.ultrie(child, "/", child.label + "/")
 				}
 		});
 		if(fork && (resourcetrie.label.indexOf('smb:') != 0 && resourcetrie.label.indexOf('ftp:') != 0)) {
@@ -107,7 +112,7 @@
 									$("#searchlabels").append(s);
 									s = "<h1 class='resultlabel'>" + value.resultlabel + "</h1>";
 									$("#resultstree").append(s);
-									s = $.ultrie(value.resourcetrie, "");
+									s = $.ultrie(value.resourcetrie, "", "");
 									$("#resultstree").append(s);
 							});
 							$("#results").show();
