@@ -117,15 +117,18 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				)
 				cursor.execute(insertionstring)
 		def __insertTags(self, cursor, uri, tag):
-				insertionstring = """
-				REPLACE INTO tags (
-						uri,
-						tag
-				) VALUES (
-				'%s', '%s')""" % (
-						uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
-						tag.encode('utf-8', errors='ignore')
-				)
+				try:
+						insertionstring = """
+						REPLACE INTO tags (
+								uri,
+								tag
+						) VALUES (
+						'%s', '%s')""" % (
+								uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
+								tag.encode('utf-8', errors='ignore')
+						)
+				except UnicodeDecodeError:
+						return
 				cursor.execute(insertionstring)
 		def run(self):
 				i = 0
