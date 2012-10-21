@@ -140,6 +140,29 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				print "%d insertions" % i
 		def allFinished(self):
 				self.alldone = True
+		def __deleteOldResourceEntries(self, cursor, age):
+				try:
+						deletionstring = """
+						DELETE FROM resources
+						WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(timestamp) > %d
+						""" % age
+				except UnicodeDecodeError:
+						return
+				cursor.execute(deletionstring)
+		def __deleteOldTagEntries(self, cursor, age):
+				try:
+						deletionstring = """
+						DELETE FROM tags
+						WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(timestamp) > %d
+						""" % age
+				except UnicodeDecodeError:
+						return
+				cursor.execute(deletionstring)
+		def __del__(self):
+				cursor = self.conn.cursor()
+				self.__deleteOldTagEntries(cursor, TIMEDIFF)
+				self.__deleteOldResourceEntries(cursor, TIMEDIFF)
+				self.conn.commit()
 
 #TODO: move to resources?
 class QueryResult1(): 
