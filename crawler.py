@@ -5,7 +5,7 @@ from ftpdrone import *
 import threading
 import sys
 
-MAXTHREADS = 127
+MAXTHREADS = 128
 
 class DanceManager():
 		def __init__(self):
@@ -26,6 +26,9 @@ class DanceManager():
 		def dyingDancer(self):
 				self.__dancerlock.acquire()
 				self.__dancercount -= 1
+				threaddiff = self.__dancercount - threading.active_count()
+				if threaddiff > 0:
+						MAXTHREADS += threaddiff
 				self.__dancerlock.notify()
 				self.__dancerlock.release()
 
