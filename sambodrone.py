@@ -20,7 +20,7 @@ class SambaDancer(threading.Thread):
 				self.uri = "smb://" + target
 				self.target = target
 		def dance(self, smburl, depth=0):
-				print smburl
+				print "[%d] %s" % (self.ident, smburl)
 				if depth > 10: #maximum recursion depth
 						return 
 
@@ -65,6 +65,7 @@ class SambaDancer(threading.Thread):
 										pass
 										#raise
 		def run(self):
+				print "[%d] start" % self.ident
 				time.sleep(1)
 				try:
 						s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,6 +73,8 @@ class SambaDancer(threading.Thread):
 						if cr != 0:
 								print "%s: port closed" % self.target
 								s.close()
+								print "[%d] dying" % self.ident
+								self.dancemanager.dyingDancer()
 								return
 						print "%s: port open" % self.target
 						s.close()
@@ -80,7 +83,7 @@ class SambaDancer(threading.Thread):
 				except:
 						raise
 						print "%s error" % self.target
-		def __del__(self):
+				print "[%d] finish" % self.ident
 				self.dancemanager.dyingDancer()
 
 

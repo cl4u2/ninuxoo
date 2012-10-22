@@ -71,6 +71,7 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				print resource
 				cursor = self.conn.cursor()
 				self.__insertRes(cursor, resource)
+				self.commitcounter += 1
 				for tag in resource.tags:
 						self.__insertTags(cursor, resource.uri, tag)
 						if self.commitcounter >= commitN:
@@ -141,22 +142,16 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 		def allFinished(self):
 				self.alldone = True
 		def __deleteOldResourceEntries(self, cursor, age):
-				try:
-						deletionstring = """
-						DELETE FROM resources
-						WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(timestamp) > %d
-						""" % age
-				except UnicodeDecodeError:
-						return
+				deletionstring = """
+				DELETE FROM resources
+				WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(timestamp) > %d
+				""" % age
 				cursor.execute(deletionstring)
 		def __deleteOldTagEntries(self, cursor, age):
-				try:
-						deletionstring = """
-						DELETE FROM tags
-						WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(timestamp) > %d
-						""" % age
-				except UnicodeDecodeError:
-						return
+				deletionstring = """
+				DELETE FROM tags
+				WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(timestamp) > %d
+				""" % age
 				cursor.execute(deletionstring)
 		def __del__(self):
 				cursor = self.conn.cursor()
