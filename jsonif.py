@@ -143,6 +143,10 @@ class JSONProcessor():
 								nres = 200 #FIXME
 
 						q = Query(req)
+
+						if request.has_key('ip'):
+								q.server = request['ip']
+
 						tsta = time.time()
 						resp = self.qm.query(q, nres)
 						tend = time.time()
@@ -163,6 +167,10 @@ class JSONProcessor():
 						req = request['q']
 								
 						q = Query(req)
+
+						if request.has_key('ip'):
+								q.server = request['ip']
+
 						tsta = time.time()
 						resp = self.qm.exactquery(q)
 						tend = time.time()
@@ -181,8 +189,12 @@ class JSONProcessor():
 								response = JsonResponse(RESPONSE_REQERROR, "Bad request: search term(s) missing")
 								return response
 						req = request['q']
-								
+
 						q = Query(req)
+
+						if request.has_key('ip'):
+								q.server = request['ip']
+
 						tsta = time.time()
 						resp = self.qm.orquery(q)
 						tend = time.time()
@@ -212,6 +224,10 @@ class JSONProcessor():
 								limit = 3 #FIXME
 								
 						q = Query(req)
+
+						if request.has_key('ip'):
+								q.server = request['ip']
+
 						tsta = time.time()
 						resp = self.qm.likequery(q, limit)
 						tend = time.time()

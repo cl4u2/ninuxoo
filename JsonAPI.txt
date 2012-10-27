@@ -5,22 +5,22 @@
 Operation: exactquery 
 Description: return the search results that match exactly (i.e. performing an
 AND between the exact words) <querystring>
-URL: /json.cgi?op=exactquery&q=<querystring>
+URL: /json.cgi?op=exactquery&q=<querystring>&ip=<IP address>
 
 Operation: orquery
 Description: return the search results that match the single exact words in
 <querystring>
-URL: /json.cgi?op=orquery&q=<querystring>
+URL: /json.cgi?op=orquery&q=<querystring>&ip=<IP address>
 
 Operation: likequery
 Description: return search results by performing variations on the words in
 <querystring>, limiting to no more than <word limit> words
-URL: /json.cgi?op=likequery&q=<querystring>&words=<word limit>
+URL: /json.cgi?op=likequery&q=<querystring>&words=<word limit>&ip=<IP address>
 
 Operation: query 
 Description: return search results by applying in order the exactquery, orquery
 and likequery operations, trying to retrieve at least <nresults> results
-URL: /json.cgi?op=query&q=<querystring>&nresults=<nresults>
+URL: /json.cgi?op=query&q=<querystring>&nresults=<nresults>&ip=<IP address>
 NOTES: nresults default is 200
 
 Operation: whatsnew 

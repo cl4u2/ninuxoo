@@ -59,7 +59,7 @@ class Resource():
 				
 				# split the uris into tags
 				separators = "./\\_' ,-!\"#$%^&*()[];:{}=@|"
-				tmptags = [urisrest, self.comments, self.server]
+				tmptags = [urisrest, self.comments]
 				for s in list(separators):
 						tmptagsnew = list()
 						for e in tmptags:

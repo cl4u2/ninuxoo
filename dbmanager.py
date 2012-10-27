@@ -220,11 +220,11 @@ class QueryMaker(MysqlConnectionManager):
 								else:
 										badtags.append(tag)
 				if len(goodtags) >= 2:
-						qr.addResultList(self.__andquery(cursor, goodtags), goodtags, "+", True)
+						qr.addResultList(self.__andquery(cursor, goodtags, server=query.server), goodtags, "+", True)
 				usedtags = []
 				if qr.getLen() < targetresults:
 						for tag in goodtags:
-								qr.addResultList(self.__orquery(cursor, [tag]), [tag], "/", len(goodtags) == 1)
+								qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "/", len(goodtags) == 1)
 						usedtags += goodtags
 				if len(badtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(badtags) 
@@ -234,7 +234,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(badtags)).difference(set(usedtags)))
 						for tag in liketags:
 								if qr.getLen() < targetresults:
-										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", False)
+										qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "OR", False)
 										usedtags.append(tag)
 				if len(goodtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(goodtags) 
@@ -244,7 +244,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
 						for tag in liketags:
 								if qr.getLen() < targetresults:
-										qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", False)
+										qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "OR", False)
 										usedtags.append(tag)
 				for j in range(1,4):
 						if qr.getLen() < targetresults:
@@ -258,25 +258,28 @@ class QueryMaker(MysqlConnectionManager):
 								liketags = list(set(liketags).difference(set(tmptags)).difference(set(usedtags)))
 								for tag in liketags:
 										if qr.getLen() < targetresults:
-												qr.addResultList(self.__orquery(cursor, [tag]), [tag], "OR", False)
+												qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "OR", False)
 										usedtags.append(tag)
 
 				cursor.close()
 				return qr
-		def __orquery(self, cursor, tags, timediff=TIMEDIFF):
+		def __orquery(self, cursor, tags, server=None, timediff=TIMEDIFF):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
 				SELECT resources.uri, resources.server, resources.filetype 
 				FROM resources JOIN tags ON resources.uri = tags.uri
-				WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) AND (tags.tag = '%s' """ % (timediff, tags[0])
+				WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) """ % timediff
+				if server:
+						selectionstring += " AND resources.server = '%s' " % server
+				selectionstring += " AND (tags.tag = '%s' " % tags[0]
 				for tag in tags[1:]:
-						selectionstring += "OR tags.tag = '%s'" % tag
+						selectionstring += " OR tags.tag = '%s' " % tag
 				selectionstring += ") ORDER BY resources.uri DESC"
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __andquery(self, cursor, tags, timediff=TIMEDIFF):
+		def __andquery(self, cursor, tags, server=None, timediff=TIMEDIFF):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -284,7 +287,10 @@ class QueryMaker(MysqlConnectionManager):
 				FROM resources JOIN tags AS t0 ON resources.uri = t0.uri """ 
 				for i in range(1,len(tags)):
 						selectionstring += "JOIN tags as t%d ON t%d.uri = t%d.uri " % (i, i-1, i)
-				selectionstring += "WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) AND t0.tag = '%s' " % (timediff, tags[0])
+				selectionstring += " WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) " % timediff
+				if server:
+						selectionstring += " AND resources.server = '%s' " % server
+				selectionstring += " AND t0.tag = '%s' " % tags[0]
 				for i in range(1,len(tags)):
 						selectionstring += "AND t%d.tag = '%s' " % (i, tags[i])
 				selectionstring += "ORDER BY resources.uri DESC"
@@ -372,7 +378,7 @@ class QueryMaker(MysqlConnectionManager):
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
 				alltags = list(query.tags)
-				qr.addResultList(self.__orquery(cursor, alltags), alltags, "/", True)
+				qr.addResultList(self.__orquery(cursor, alltags, server=query.server), alltags, "/", True)
 				cursor.close()
 				return qr
 		
