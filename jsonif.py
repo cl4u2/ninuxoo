@@ -232,7 +232,7 @@ class JSONProcessor():
 						resp = self.qm.likequery(q, limit)
 						tend = time.time()
 						searchtime = tend - tsta
-						response = self.__fillresponse(resp, searchtim, req)
+						response = self.__fillresponse(resp, searchtime, req)
 
 				except Exception, e:
 						response = JsonResponse(RESPONSE_SERVERERROR, "Error [%s]" % str(e))
