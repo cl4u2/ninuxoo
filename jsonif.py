@@ -147,6 +147,9 @@ class JSONProcessor():
 						if request.has_key('ip'):
 								q.server = request['ip']
 
+						if request.has_key('filetype'):
+								q.filetype = request['filetype'].upper()
+
 						tsta = time.time()
 						resp = self.qm.query(q, nres)
 						tend = time.time()
@@ -171,6 +174,9 @@ class JSONProcessor():
 						if request.has_key('ip'):
 								q.server = request['ip']
 
+						if request.has_key('filetype'):
+								q.filetype = request['filetype'].upper()
+
 						tsta = time.time()
 						resp = self.qm.exactquery(q)
 						tend = time.time()
@@ -194,6 +200,9 @@ class JSONProcessor():
 
 						if request.has_key('ip'):
 								q.server = request['ip']
+
+						if request.has_key('filetype'):
+								q.filetype = request['filetype'].upper()
 
 						tsta = time.time()
 						resp = self.qm.orquery(q)
@@ -227,6 +236,9 @@ class JSONProcessor():
 
 						if request.has_key('ip'):
 								q.server = request['ip']
+
+						if request.has_key('filetype'):
+								q.filetype = request['filetype'].upper()
 
 						tsta = time.time()
 						resp = self.qm.likequery(q, limit)

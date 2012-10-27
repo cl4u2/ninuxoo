@@ -220,11 +220,11 @@ class QueryMaker(MysqlConnectionManager):
 								else:
 										badtags.append(tag)
 				if len(goodtags) >= 2:
-						qr.addResultList(self.__andquery(cursor, goodtags, server=query.server), goodtags, "+", True)
+						qr.addResultList(self.__andquery(cursor, goodtags, server=query.server, filetype=query.filetype), goodtags, "+", True)
 				usedtags = []
 				if qr.getLen() < targetresults:
 						for tag in goodtags:
-								qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "/", len(goodtags) == 1)
+								qr.addResultList(self.__orquery(cursor, [tag], server=query.server, filetype=query.filetype), [tag], "/", len(goodtags) == 1)
 						usedtags += goodtags
 				if len(badtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(badtags) 
@@ -234,7 +234,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(badtags)).difference(set(usedtags)))
 						for tag in liketags:
 								if qr.getLen() < targetresults:
-										qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "OR", False)
+										qr.addResultList(self.__orquery(cursor, [tag], server=query.server, filetype=query.filetype), [tag], "OR", False)
 										usedtags.append(tag)
 				if len(goodtags) > 0 and qr.getLen() < targetresults:
 						lim = 1 + self.likes / len(goodtags) 
@@ -244,7 +244,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags = list(set(liketags).difference(set(goodtags)).difference(set(usedtags)))
 						for tag in liketags:
 								if qr.getLen() < targetresults:
-										qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "OR", False)
+										qr.addResultList(self.__orquery(cursor, [tag], server=query.server, filetype=query.filetype), [tag], "OR", False)
 										usedtags.append(tag)
 				for j in range(1,4):
 						if qr.getLen() < targetresults:
@@ -258,12 +258,12 @@ class QueryMaker(MysqlConnectionManager):
 								liketags = list(set(liketags).difference(set(tmptags)).difference(set(usedtags)))
 								for tag in liketags:
 										if qr.getLen() < targetresults:
-												qr.addResultList(self.__orquery(cursor, [tag], server=query.server), [tag], "OR", False)
+												qr.addResultList(self.__orquery(cursor, [tag], server=query.server, filetype=query.filetype), [tag], "OR", False)
 										usedtags.append(tag)
 
 				cursor.close()
 				return qr
-		def __orquery(self, cursor, tags, server=None, timediff=TIMEDIFF):
+		def __orquery(self, cursor, tags, server=None, filetype=None, timediff=TIMEDIFF):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -272,6 +272,8 @@ class QueryMaker(MysqlConnectionManager):
 				WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) """ % timediff
 				if server:
 						selectionstring += " AND resources.server = '%s' " % server
+				if filetype:
+						selectionstring += " AND resources.filetype = '%s' " % filetype
 				selectionstring += " AND (tags.tag = '%s' " % tags[0]
 				for tag in tags[1:]:
 						selectionstring += " OR tags.tag = '%s' " % tag
@@ -279,7 +281,7 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.execute(selectionstring)
 				r = [Resource(uri=e[0], server=e[1], filetype=e[2]) for e in cursor.fetchall()]
 				return r
-		def __andquery(self, cursor, tags, server=None, timediff=TIMEDIFF):
+		def __andquery(self, cursor, tags, server=None, filetype=None, timediff=TIMEDIFF):
 				if len(tags) <=0:
 						return []
 				selectionstring = """
@@ -290,6 +292,8 @@ class QueryMaker(MysqlConnectionManager):
 				selectionstring += " WHERE (UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d) " % timediff
 				if server:
 						selectionstring += " AND resources.server = '%s' " % server
+				if filetype:
+						selectionstring += " AND resources.filetype = '%s' " % filetype
 				selectionstring += " AND t0.tag = '%s' " % tags[0]
 				for i in range(1,len(tags)):
 						selectionstring += "AND t%d.tag = '%s' " % (i, tags[i])
@@ -369,7 +373,7 @@ class QueryMaker(MysqlConnectionManager):
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
 				alltags = list(query.tags)
-				qr.addResultList(self.__andquery(cursor, alltags, server=query.server), alltags, "+", True)
+				qr.addResultList(self.__andquery(cursor, alltags, server=query.server, filetype=query.filetype), alltags, "+", True)
 				cursor.close()
 				return qr
 
@@ -378,7 +382,7 @@ class QueryMaker(MysqlConnectionManager):
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
 				alltags = list(query.tags)
-				qr.addResultList(self.__orquery(cursor, alltags, server=query.server), alltags, "/", True)
+				qr.addResultList(self.__orquery(cursor, alltags, server=query.server, filetype=query.filetype), alltags, "/", True)
 				cursor.close()
 				return qr
 		
@@ -392,7 +396,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags += self.__taglike(cursor, t, limit/len(alltags))
 				liketags = list(set(liketags).difference(set(alltags)))
 				for t in liketags:
-						qr.addResultList(self.__orquery(cursor, [t], server=query.server), [t], "/", False)
+						qr.addResultList(self.__orquery(cursor, [t], server=query.server, filetype=query.filetype), [t], "/", False)
 				cursor.close()
 				return qr
 
