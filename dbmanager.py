@@ -369,7 +369,7 @@ class QueryMaker(MysqlConnectionManager):
 				qr = QueryResultS()
 				cursor = self.conn.cursor()
 				alltags = list(query.tags)
-				qr.addResultList(self.__andquery(cursor, alltags), alltags, "+", True)
+				qr.addResultList(self.__andquery(cursor, alltags, server=query.server), alltags, "+", True)
 				cursor.close()
 				return qr
 
@@ -392,7 +392,7 @@ class QueryMaker(MysqlConnectionManager):
 						liketags += self.__taglike(cursor, t, limit/len(alltags))
 				liketags = list(set(liketags).difference(set(alltags)))
 				for t in liketags:
-						qr.addResultList(self.__orquery(cursor, [t]), [t], "/", False)
+						qr.addResultList(self.__orquery(cursor, [t], server=query.server), [t], "/", False)
 				cursor.close()
 				return qr
 
