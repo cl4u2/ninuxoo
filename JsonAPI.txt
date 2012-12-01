@@ -37,6 +37,10 @@ retrieve at least <nresults> results, but no more than <nresults>
 URL: /json.cgi?op=whatsnew&nresults=<nresults>
 NOTES: nresults default is 200
 
+Operation: serverlist
+Description: return the list of found servers
+URL: /json.cgi?op=serverlist
+
 == Search Results Format ==
 
 {

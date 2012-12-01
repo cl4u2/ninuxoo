@@ -274,3 +274,12 @@ class JSONProcessor():
 
 				return response
 
+		def serverlist(self, request):
+				"return the list of servers indexed by the search engine"
+				try:
+						res = self.qm.getServerList()
+						response = JsonResponse(RESPONSE_OK, None, {'result': res})
+				except Exception, e:
+						response = JsonResponse(RESPONSE_SERVERERROR, str(e))
+				return response
+

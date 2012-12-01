@@ -400,6 +400,21 @@ class QueryMaker(MysqlConnectionManager):
 				cursor.close()
 				return qr
 
+		def __getServerList(self, cursor, timediff=TIMEDIFF):
+				selectionstring = """
+				SELECT resources.server
+				FROM resources
+				WHERE UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d
+				GROUP BY resources.server""" % timediff
+				cursor.execute(selectionstring)
+				r = [e[0] for e in cursor.fetchall()]
+				return r
+		def getServerList(self):
+				qr = QueryResultS()
+				cursor = self.conn.cursor()
+				return self.__getServerList(cursor)
+
+
 
 if __name__ == "__main__":
 		rs = ResourceStorer('localhost','ninuu','ciaociao','ninuxuu')
