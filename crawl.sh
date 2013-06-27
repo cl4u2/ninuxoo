@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NINUXOO_DIR=/opt/ninuxoo/ninuu
+NINUXOO_DIR=/home/user/ninuxoo
 
 cd $NINUXOO_DIR
 ${NINUXOO_DIR}/getprefixesfromroutingtable.sh > ${NINUXOO_DIR}/IpPrefixes.txt && time python crawler.py; 
