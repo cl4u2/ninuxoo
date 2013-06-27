@@ -1,0 +1,42 @@
+= ninuXoo! =
+
+ninuXoo! is [http://wiki.ninux.org ninux.org] file search engine.
+
+It crawls through a network indexing samba (and ftp) shares.
+
+
+= Installation =
+
+# Tested on Ubuntu 12.04
+# Install dependencies
+sudo apt-get install git mysql-server apache2 python-mysqldb python-beautifulsoup olsrd
+
+# git clone ninuxoo
+git clone https://github.com/ninuxorg/ninuxoo.git
+cd ninuxoo
+
+# install the database
+mysql -u root -p < ninuxuu0.sql
+
+# install the cgi files
+sudo cp -v *.cgi jsonif.py /usr/lib/cgi-bin/
+
+# install the static Web resources
+sudo mkdir /var/www/ninuxoo
+sudo cp -Rv *.html *.css *.png common /var/www/ninuxoo
+sudo cp -Rv *.ico index.html /var/www/
+
+# install python modules
+cd /usr/lib/python2.7/
+cp -v ~/ninuxoo/dbmanager.py ~/ninuxoo/resources.py .
+
+# start services
+sudo service apache2 restart
+sudo olsrd -i eth0 -d 0
+
+# try
+./crawl.sh 
+
+# if it works then install the crontab
+crontab ninuxoo_crontab
+

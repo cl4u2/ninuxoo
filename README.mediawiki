@@ -1,7 +1,0 @@
-= ninuXoo! =
-
-ninuXoo! is [http://wiki.ninux.org ninux.org] file search engine.
-
-It crawls through a network indexing samba and ftp shares.
-
-
