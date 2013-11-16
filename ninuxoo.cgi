@@ -90,13 +90,16 @@ print """
 <input type='submit' value='go!' />
 </form>
 </div>
+
 """ % req.replace("'", " ")
 
 qm = QueryMaker('localhost','ninuu','ciaociao','ninuxuu')
 
 if len(req) <= 0:
 		try:
-				print "<div class='resstats'> %d file indicizzati su %d server </div>" % (qm.getResourceStats(), qm.getServerStats())
+				print "<div class='resstats'> %d file indicizzati su %d server <br /><br />" % (qm.getResourceStats(), qm.getServerStats())
+				print "<a href='/ninuxoo/ninuxoo.html'>Nuova interfaccia</a>! <b>Beta</b>"""
+				print "</div>"
 		except:
 				pass
 		print outputtail
