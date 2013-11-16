@@ -87,20 +87,23 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				sserver = resource.server.strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				sprotocol =	resource.protocol.strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				spath = resource.path.strip().replace("'","\\'").encode('utf-8', errors='ignore')
+				sshare = resource.getShare().strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				sfiletype = resource.filetype.strip().replace("'","\\'").encode('utf-8', errors='ignore')
 				insertionstring = """
 				INSERT INTO resources (
 						uri, 
 						server,
+						share,
 						protocol,
 						path,
 						filetype,
 						firstseen,
 						timestamp
 				) VALUES (
-				'%s', '%s', '%s', '%s', '%s', NOW(), NOW()
+				'%s', '%s', '%s', '%s', '%s', '%s', NOW(), NOW()
 				) ON DUPLICATE KEY UPDATE 
 					server = '%s',
+					share = '%s',
 					protocol = '%s',
 					path = '%s',
 					filetype = '%s',
@@ -108,10 +111,12 @@ class ResourceStorer(MysqlConnectionManager, threading.Thread):
 				""" % (
 						resource.uri.strip().replace("'","\\'").encode('utf-8', errors='ignore'),
 						sserver,
+						sshare,
 						sprotocol,
 						spath,
 						sfiletype,
 						sserver,
+						sshare,
 						sprotocol,
 						spath,
 						sfiletype,

@@ -114,6 +114,14 @@ class Resource():
 						res = self.uri
 				return res
 
+		def getShare(self):
+				splituri = self.uri.split('/')
+				try:
+						res = splituri[3]
+				except IndexError:
+						res = ""
+				return res
+
 		def __repr__(self):
 				return self.uri + " {" + self.comments + "} " + str(list(self.tags))
 		def __str__(self):

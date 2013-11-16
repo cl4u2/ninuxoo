@@ -8,6 +8,7 @@ USE ninuxuu;
 CREATE TABLE IF NOT EXISTS `resources` (
   `uri` varchar(700) NOT NULL,
   `server` varchar(50) NOT NULL,
+  `share` varchar(50) NOT NULL,
   `path` varchar(650),
   `protocol` varchar(10),
   `filetype` varchar(20),
