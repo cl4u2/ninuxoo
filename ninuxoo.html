@@ -130,7 +130,7 @@
 					$("#resstats").html(data.result + " files indicizzati ");
 					$.getJSON('/cgi-bin/json.cgi', 'op=serverstats', function(data) {
 						$("#resstats").append("su " + data.result);
-				   		$("#resstats").append(" <a href='cgi-bin/browse_share.cgi' title='Esplora i files i condivisione'>Server</a>");
+				   		$("#resstats").append(" <a href='/cgi-bin/browse_share.cgi' title='Esplora i files i condivisione'>Server</a>");
 					});
 			});
 	});
@@ -143,7 +143,7 @@
 				<td>
 					<ul>
 						<li><a href="#" id="whatsnew" title="Nuovi files indicizzati">Novit&agrave;</a></li>
-						<li><a href="cgi-bin/browse_share.cgi" title="Esplora i files i condivisione">Condivisioni</a></li>
+						<li><a href="/cgi-bin/browse_share.cgi" title="Esplora i files i condivisione">Condivisioni</a></li>
 						<li><a href="http://10.168.177.178:8888/" title="Ascolta la musica in rete">Juke Box</a></li>
 						<li><a href="cgi-bin/proxy_wiki.cgi?url=Elenco_Telefonico_rete_VoIP_di_ninux.org" title="Elenco telefonico"><acronym title="Voice over IP">VoIP</acronym></a></li>
 						<li><a href="http://10.168.43.127/meteo/" title="Visualizza dati meteo in tempo reale">Meteo Roma</a></li>
