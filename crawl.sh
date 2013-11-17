@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NINUXOO_DIR=/opt/ninuxoo/ninuu
+NINUXOO_DIR=/home/user/ninuxoo
 
 for p in $(ps ax -opid,cmd | grep crawler.py | awk '{print $1}'); do 
 	kill $p 
