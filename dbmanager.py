@@ -419,6 +419,21 @@ class QueryMaker(MysqlConnectionManager):
 				cursor = self.conn.cursor()
 				return self.__getServerList(cursor)
 
+		def __getShares(self, cursor, timediff=TIMEDIFF):
+				selectionstring = """
+				SELECT resources.server, resources.share
+				FROM resources
+				WHERE UNIX_TIMESTAMP(resources.timestamp) >= UNIX_TIMESTAMP(NOW()) - %d AND resources.share != "NULL" and length(resources.share) > 0 
+				GROUP BY resources.server, resources.share
+				ORDER BY resources.server
+				""" % timediff
+				cursor.execute(selectionstring)
+				r = [(e[0], e[1]) for e in cursor.fetchall()]
+				return r
+		def getShares(self):
+				qr = QueryResultS()
+				cursor = self.conn.cursor()
+				return self.__getShares(cursor)
 
 
 if __name__ == "__main__":
